@@ -1,0 +1,105 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.34.2.
+--
+-- see: https://github.com/sol/hpack
+
+name:           hq
+version:        0.1.0.0
+synopsis:       Quantitative Library
+description:    Please see the README on GitHub at <https://github.com/ghais/hq#readme>
+homepage:       https://github.com/github.com/ghais#readme
+bug-reports:    https://github.com/github.com/ghais/issues
+author:         Ghais
+maintainer:     0x47@0x49.dev
+copyright:      2020 Ghais Issa here
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/github.com/ghais
+  subdir: hq
+
+library
+  exposed-modules:
+      Q.MonteCarlo
+      Q.Stats.Arima
+      Q.Stats.TimeSeries
+      Q.Stochastic
+      Q.Stochastic.Discretize
+      Q.Stochastic.Process
+      Q.Time
+      Q.Time.Date
+      Q.Time.DayCounter
+      Q.Util.File
+  other-modules:
+      Paths_hq
+  hs-source-dirs:
+      src
+  build-depends:
+      Chart
+    , Chart-diagrams
+    , ad
+    , base >=4.7 && <5
+    , bytestring
+    , cassava
+    , containers
+    , conversion
+    , hmatrix
+    , hmatrix-gsl
+    , mersenne-random-pure64
+    , monad-loops
+    , mtl
+    , random
+    , random-fu
+    , random-fu-multivariate
+    , random-source
+    , rvar
+    , sorted-list
+    , statistics
+    , text
+    , time
+    , transformers
+    , vector
+  default-language: Haskell2010
+
+test-suite hq-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_hq
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      Chart
+    , Chart-diagrams
+    , ad
+    , base >=4.7 && <5
+    , bytestring
+    , cassava
+    , containers
+    , conversion
+    , hmatrix
+    , hmatrix-gsl
+    , hq
+    , mersenne-random-pure64
+    , monad-loops
+    , mtl
+    , random
+    , random-fu
+    , random-fu-multivariate
+    , random-source
+    , rvar
+    , sorted-list
+    , statistics
+    , text
+    , time
+    , transformers
+    , vector
+  default-language: Haskell2010

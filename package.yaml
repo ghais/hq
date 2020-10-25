@@ -1,0 +1,61 @@
+name:                hq
+version:             0.1.0.0
+github:              "github.com/ghais/hq"
+license:             BSD3
+author:              "Ghais"
+maintainer:          "0x47@0x49.dev"
+copyright:           "2020 Ghais Issa here"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+synopsis:            Quantitative Library
+#category:            Math
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/ghais/hq#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- cassava
+- vector
+- containers
+- random
+- mersenne-random-pure64
+- rvar
+- random-source
+- random-fu
+- hmatrix
+- statistics
+- bytestring
+- cassava
+- time
+- conversion
+- sorted-list
+- random-fu-multivariate
+- Chart
+- Chart-diagrams
+- hmatrix-gsl
+- transformers
+- mtl
+- text
+- ad
+- monad-loops
+
+library:
+  source-dirs: src
+
+tests:
+  hq-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - hq
