@@ -4,11 +4,11 @@ module Q.Time
         , parseLocalTime
         ) where
 
-import Q.Time.Date
-import Q.Time.DayCounter
-import Data.Time
-import Data.Time.Format
-import Data.Time.Format.ISO8601
+import           Data.Time
+import           Data.Time.Format
+import           Data.Time.Format.ISO8601
+import           Q.Time.Date
+import           Q.Time.DayCounter
 
 -- | Converts a shortened ISO08601 date string, or datetime to a LocalTime.
 -- | If the string doesn't contain time then midnight is used.
@@ -17,7 +17,7 @@ parseLocalTime iso_datetime =
   if length iso_datetime == 8 then do
     day <- formatParseM dayFormat' iso_datetime
     return $ LocalTime day midnight
-  else                
+  else
     formatParseM localTimeFormat' iso_datetime
 
 
@@ -29,5 +29,5 @@ timeFormat' = timeOfDayFormat BasicFormat
 dayFormat' = calendarFormat BasicFormat
 
 -- | Format a date as an basic ISO08601 format.
-dateToString :: LocalTime -> String 
+dateToString :: LocalTime -> String
 dateToString date = formatShow localTimeFormat' date

@@ -1,32 +1,33 @@
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE QuantifiedConstraints #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE InstanceSigs #-}
-{-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE ConstraintKinds #-}
-{-# LANGuAGE MultiParamTypeClasses #-}
-{-# LANGuAGE FunctionalDependencies #-}
-{-# LANGUAGE TemplateHaskell, GADTs, RankNTypes #-}
+{-# LANGUAGE ConstraintKinds        #-}
+{-# LANGUAGE FlexibleContexts       #-}
+{-# LANGUAGE FlexibleInstances      #-}
+{-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE GADTs                  #-}
+{-# LANGUAGE InstanceSigs           #-}
+{-# LANGUAGE MultiParamTypeClasses  #-}
+{-# LANGUAGE QuantifiedConstraints  #-}
+{-# LANGUAGE RankNTypes             #-}
+{-# LANGUAGE TemplateHaskell        #-}
+{-# LANGUAGE TypeOperators          #-}
+{-# LANGUAGE UndecidableInstances   #-}
 
 module Q.Stats.Arima where
-import Data.Foldable
-import Numeric.LinearAlgebra
-import Control.Monad.State
-import Data.Functor.Identity
-import Data.RVar
-import Data.Random
-import System.Random.Mersenne.Pure64
-import Data.Random.Source
-import Q.Stats.TimeSeries
-import Data.Time
+import           Control.Monad.State
+import           Data.Foldable
+import           Data.Functor.Identity
+import           Data.Random
+import           Data.Random.Source
+import           Data.RVar
+import           Data.Time
+import           Numeric.LinearAlgebra
+import           Q.Stats.TimeSeries
+import           System.Random.Mersenne.Pure64
 --import Control.Monad.Trnas.Identity
-import Data.RVar
-import Data.Random.Distribution
-import Statistics.Sample
-import Data.Random.Distribution.T
-import Data.Random.Distribution.Poisson
+import           Data.Random.Distribution
+import           Data.Random.Distribution.Poisson
+import           Data.Random.Distribution.T
+import           Data.RVar
+import           Statistics.Sample
 
 data Ewma d = Ewma Double d
 
