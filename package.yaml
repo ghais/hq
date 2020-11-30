@@ -45,6 +45,8 @@ dependencies:
 - text
 - ad
 - monad-loops
+- hvega
+- gnuplot
 
 library:
   source-dirs: src

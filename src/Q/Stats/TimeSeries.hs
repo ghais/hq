@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes        #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Q.Stats.TimeSeries where
 import qualified Data.ByteString.Lazy                      as B
@@ -16,7 +17,7 @@ import           Data.Vector                               (Vector, toList)
 import           GHC.Generics                              (Generic)
 import           Graphics.Rendering.Chart.Backend.Diagrams
 import           Graphics.Rendering.Chart.Easy
-
+import qualified Data.Text as T
 -- A single data point with a time and value.
 data DataPoint a b = DataPoint {
     dpT :: a  -- ^Time
@@ -59,6 +60,9 @@ parseDay :: String -> Maybe LocalTime
 parseDay iso_date = do
   day <- formatParseM dayFormat' iso_date
   return $ LocalTime day midnight
+
+dayToString :: Day -> T.Text
+dayToString = T.pack . formatShow dayFormat'
 
 dateToString :: LocalTime -> String
 dateToString date = formatShow (localTimeFormat (calendarFormat BasicFormat) (timeOfDayFormat BasicFormat)) date

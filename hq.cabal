@@ -27,6 +27,9 @@ source-repository head
 
 library
   exposed-modules:
+      Q.BlackScholes
+      Q.ContingentClaim
+      Q.ContingentClaim.Options
       Q.MonteCarlo
       Q.Stats.Arima
       Q.Stats.TimeSeries
@@ -36,6 +39,7 @@ library
       Q.Time
       Q.Time.Date
       Q.Time.DayCounter
+      Q.Types
       Q.Util.File
   other-modules:
       Paths_hq
@@ -50,8 +54,10 @@ library
     , cassava
     , containers
     , conversion
+    , gnuplot
     , hmatrix
     , hmatrix-gsl
+    , hvega
     , mersenne-random-pure64
     , monad-loops
     , mtl
@@ -85,9 +91,11 @@ test-suite hq-test
     , cassava
     , containers
     , conversion
+    , gnuplot
     , hmatrix
     , hmatrix-gsl
     , hq
+    , hvega
     , mersenne-random-pure64
     , monad-loops
     , mtl

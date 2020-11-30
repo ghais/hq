@@ -15,8 +15,17 @@ import           Data.Random
 import           Data.Random
 import           Data.RVar
 import           Numeric.LinearAlgebra
+import Control.Monad.State
 
-
+rwalkState :: RVarT (State Double) Double
+rwalkState = do
+    prev <- lift get
+    change  <- rvarT StdNormal
+    
+    let new = prev + change
+    lift (put new)
+    return new
+    
 type Time = Double
 
 -- Dont know why this wasn't done.

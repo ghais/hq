@@ -22,7 +22,6 @@ import           Data.Time
 import           Numeric.LinearAlgebra
 import           Q.Stats.TimeSeries
 import           System.Random.Mersenne.Pure64
---import Control.Monad.Trnas.Identity
 import           Data.Random.Distribution
 import           Data.Random.Distribution.Poisson
 import           Data.Random.Distribution.T
