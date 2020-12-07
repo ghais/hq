@@ -47,6 +47,9 @@ dependencies:
 - monad-loops
 - hvega
 - gnuplot
+- math-functions
+- ieee754
+- erf
 
 library:
   source-dirs: src

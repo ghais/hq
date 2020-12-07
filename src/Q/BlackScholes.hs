@@ -18,7 +18,8 @@ import Q.Types
 import Data.Random hiding (Gamma)
 import Control.Monad.State
 import Q.MonteCarlo
-
+import Numeric.RootFinding
+import Q.ImpliedVol.LetsBeRational (black)
 dcf = dcYearFraction ThirtyUSA
 
 -- | Parameters for a simplified black scholes equation.
@@ -52,7 +53,7 @@ data Valuation = Valuation {
   , vDelta   :: Delta
   , vVega    :: Vega
   , vGamma   :: Gamma
-}
+} deriving (Show)
 
 
 -- | European option valuation with black scholes.
@@ -78,14 +79,27 @@ euOption bs@BlackScholes{..} cp k t = Valuation premium delta vega gamma where
   delta | cp == Call = Delta $ callDelta
         | cp == Put  = Delta $ putDelta
 
-
-dPlus f (Rate r) (Vol sigma) (Strike k) (YearFrac t)  = recip (sigma * sqrt t) * (log (f/k) + (0.5 * sigma * sigma) * t)
-dMinus f (Rate r) (Vol sigma) (Strike k) (YearFrac t) = recip (sigma * sqrt t) * (log (f/k) - (0.5 * sigma * sigma) * t) 
-
-    
 -- | see 'euOption'
 euput bs =  euOption bs Put
 
 -- | see 'euOption'
 eucall bs = euOption bs Call
 
+dPlus f (Rate r) (Vol sigma) (Strike k) (YearFrac t)  = recip (sigma * sqrt t) * (log (f/k) + (0.5 * sigma * sigma) * t)
+dMinus f (Rate r) (Vol sigma) (Strike k) (YearFrac t) = recip (sigma * sqrt t) * (log (f/k) - (0.5 * sigma * sigma) * t) 
+
+    
+
+
+
+corradoMillerIniitalGuess bs@BlackScholes{..} cp (Strike k) (YearFrac t) (Premium premium) =
+  (recip $ sqrt t) * ((sqrt (2 * pi)/ (s + discountedStrike)) + (premium - (s - discountedStrike)/2) + sqrt ((premium - (s - discountedStrike)/2)**2 - ((s - discountedStrike)**2/pi))) where
+    discountedStrike = k * (exp $ (-r) * t)
+    (Rate r) = bsRate
+    (Spot s) = bsSpot
+
+--euImpliedVol bs@BlackScholes{..} cp (Strike k) (YearFrac t) (Premium premium) = newtonRaphson (0.0001, guess, 5) where
+--  guess = corradoMillerIniitalGuess bs cp (Strike k) (YearFrac t) (Premium premium)
+
+
+bs = BlackScholes (Spot (100 * (exp $ 0.01*(-1)))) (Rate 0.01) (Vol 0.1)

@@ -67,7 +67,7 @@ generateCallsAndPuts spot strikes expiries rates vols =
 -- | create some sample data.
 createCsv :: FilePath -> IO ()
 createCsv f = do
-  let spots       = [Spot 100]
+  let spots      = [Spot 100]
       strikes    = [Strike k | k <- [1,2..300]]
       expiries   = [YearFrac 0.1, YearFrac 1, YearFrac 2, YearFrac 10, YearFrac 20]
       rates      = [Rate 0.01]

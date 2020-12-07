@@ -1,8 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.34.2.
+-- This file has been generated from package.yaml by hpack version 0.33.0.
 --
 -- see: https://github.com/sol/hpack
+--
+-- hash: a86d60cc645ad1d0f43a9038d2b5c413c8ebc887e6344a01a3ffd2c12668c735
 
 name:           hq
 version:        0.1.0.0
@@ -30,12 +32,15 @@ library
       Q.BlackScholes
       Q.ContingentClaim
       Q.ContingentClaim.Options
+      Q.ImpliedVol.LetsBeRational
       Q.MonteCarlo
+      Q.Plotting
       Q.Stats.Arima
       Q.Stats.TimeSeries
       Q.Stochastic
       Q.Stochastic.Discretize
       Q.Stochastic.Process
+      Q.SVI
       Q.Time
       Q.Time.Date
       Q.Time.DayCounter
@@ -54,10 +59,13 @@ library
     , cassava
     , containers
     , conversion
+    , erf
     , gnuplot
     , hmatrix
     , hmatrix-gsl
     , hvega
+    , ieee754
+    , math-functions
     , mersenne-random-pure64
     , monad-loops
     , mtl
@@ -91,11 +99,14 @@ test-suite hq-test
     , cassava
     , containers
     , conversion
+    , erf
     , gnuplot
     , hmatrix
     , hmatrix-gsl
     , hq
     , hvega
+    , ieee754
+    , math-functions
     , mersenne-random-pure64
     , monad-loops
     , mtl
