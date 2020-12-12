@@ -50,6 +50,8 @@ dependencies:
 - math-functions
 - ieee754
 - erf
+- hspec
+- hspec-expectations
 
 library:
   source-dirs: src

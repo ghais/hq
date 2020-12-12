@@ -24,8 +24,10 @@ module Q.Types (
   , Expiry(..)
   , YearFrac(..)
   , Rate(..)
+  , DF(..)
   , Vol(..)
   , TimeScaleable(..)
+  , cpi
   ) where
 
 import           Data.Csv     (FromField(..), ToField(..))
@@ -36,8 +38,18 @@ import           Q.Time.Date
 import qualified Data.ByteString as B
 
 -- | Type for Put or Calls
-data OptionType  = Put | Call deriving (Generic, Eq,Show)
+data OptionType  = Put | Call deriving (Generic, Eq, Show, Bounded)
+instance Enum OptionType where
+  succ Call = Put
+  succ Put  = Call
 
+  pred = succ
+  toEnum x = if signum x == 1 then Call else Put
+  fromEnum Call = 1
+  fromEnum Put = -1
+
+cpi Call = 1
+cpi Put  = -1
 newtype Spot     = Spot    Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
 newtype Forward  = Forward Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
 newtype Strike   = Strike  Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
@@ -53,6 +65,7 @@ newtype Gamma    = Gamma    Double deriving (Generic, Eq, Show, Ord, Num, Fracti
 newtype YearFrac = YearFrac Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
 
 newtype Rate     = Rate Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
+newtype DF       = DF   Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
 newtype Vol      = Vol  Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
 
 instance FromField OptionType where

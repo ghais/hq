@@ -1,6 +1,6 @@
 module Q.ImpliedVol.LetsBeRational where
 
-import Numeric.IEEE (epsilon, minDenormal, maxFinite)
+import Numeric.IEEE (epsilon, minNormal, maxFinite)
 import Statistics.Distribution (cumulative, density, quantile)
 import Statistics.Distribution.Normal (standard)
 import Data.Number.Erf
@@ -21,7 +21,7 @@ fourthRootEpsilon        = sqrt sqrtEpsilon
 eightsRootEpsilon        = sqrt fourthRootEpsilon
 sixteenthRootEpsilon     = sqrt eightsRootEpsilon
 
-sqrtDblMin               = sqrt minDenormal::Double
+sqrtDblMin               = sqrt minNormal::Double
 sqrtDblMax               = sqrt maxFinite::Double
 
 denormalizationCutoff               = 0
@@ -99,7 +99,7 @@ normalisedBlackCall x s | x > 0  = normalisedIntrinsicCall x + normalisedBlackCa
                             normalisedBlackcCallUsingErfcx (x/s) (0.5 * s)
   where ax = abs x
 
-normaliedVega x s | ax <= 0 = oneOverSqrtTwoPi * exp ((-0.125)*s*s)
+normalisedVega x s | ax <= 0 = oneOverSqrtTwoPi * exp ((-0.125)*s*s)
                    | s <= 0 || s <= ax * sqrtDblMin = 0
                    | otherwise                   = oneOverSqrtTwoPi * (exp $ (-0.5) *  (x/s)**2 + (0.5*s)**2)
   where ax = abs x
@@ -122,7 +122,7 @@ maximumRationalCubicControlParameterValue = 2 / (epsilon * epsilon)
 
 
 
-isZero x = abs x < minDenormal
+isZero x = abs x < minNormal
 
 rationalCubicInterpolation :: Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double
 rationalCubicInterpolation x x_l x_r y_l y_r d_l d_r r 
@@ -242,8 +242,55 @@ computeFUpperMapAndFirstTwoDerivatives x s
 
 
 
+uncheckedNormalisedImpliedVolatilityFromATransformedRationalGuessWithLimitedIterations beta x q n
+  | q*x > 0  =
+      uncheckedNormalisedImpliedVolatilityFromATransformedRationalGuessWithLimitedIterations beta' x (-q) n
+  -- ^subtract intrinsic
+  | q < 0    =
+      uncheckedNormalisedImpliedVolatilityFromATransformedRationalGuessWithLimitedIterations beta (-q) (-x) n
+  | beta <= 0 =
+      Left (0,0)
+  | beta < denormalizationCutoff =
+      Left (0,0)
+  | beta > bMax =
+      Right "Price above intrinsic"
+  | beta < b_c && beta < b_l = handleFirstSegment   beta x q n
+  | beta < b_c && beta >= b_l = handleFirstSegment  beta x q n
+  | beta >= b_c && beta <= b_h = handleFirstSegment  beta x q n
+  | otherwise               = handleFirstSegment beta x q n
+  where beta' = abs $ max (beta - (normalisedIntrinsic x q)) 0
+        bMax  = exp $ 0.5 * x
+        s_c = sqrt(abs (2 * x))
+        b_c  = normalisedBlackCall x s_c
+        v_c  = normalisedVega x s_c
+        s_l = s_c - b_c/v_c
+        b_l = normalisedBlackCall x s_l
+        s_h = if v_c > minNormal then s_c + (bMax-b_c)/v_c else s_c
+        b_h = normalisedBlackCall x s_h
 
 
+handleFirstSegment :: Double -> Double -> Double -> Int -> Either (Double, Int) String
+handleFirstSegment beta x q n =
+  let ds = s
+      ds_previous = 0
+      s_left = epsilon::Double
+      s_c = sqrt(abs (2 * x))
+      b_c  = normalisedBlackCall x s_c
+      v_c  = normalisedVega x s_c
+      s_l = s_c - b_c/v_c
+      b_l = normalisedBlackCall x s_l
+      (f_lower_map_l, d_f_lower_map_l_d_beta, d2_f_lower_map_l_d_beta2) = computeFLowerMapAndFirstTwoDerivatives x s_l
+      r_ll =  convexRationalCubicControlParameterToFitSecondDerivativeAtRightSide 0 b_l 0 f_lower_map_l 1 d_f_lower_map_l_d_beta d2_f_lower_map_l_d_beta2 True
+      f' = rationalCubicInterpolation beta 0 b_l 0 f_lower_map_l 1 d_f_lower_map_l_d_beta r_ll
+      t = beta / b_l
+      f = if f > 0 then f else (f_lower_map_l*t + b_l*(1-t)) * t
+      s = inverseFLowerMap x f
+      s_right = s_l
+  in solve s s_right s_left ds ds_previous 0 0 where
+     solve s s_right s_left ds ds_previous iterations direction_reversal_count
+       | iterations >= n = undefined
+       | abs ds > epsilon * s = undefined
+       | otherwise = undefined
 
 
 

@@ -2,7 +2,8 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE OverloadedStrings          #-}
 module Q.SVI where
-import           Q.Types      (Forward(..), Strike(..), YearFrac (..), Vol(..))
+import           Q.Types      (Forward (..), Strike (..), Vol (..),
+                               YearFrac (..))
 
 import           GHC.Generics (Generic)
 

@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a86d60cc645ad1d0f43a9038d2b5c413c8ebc887e6344a01a3ffd2c12668c735
+-- hash: c69308c8801747122454cb1c37ade94d39cc0d210bcd81ea21f7f7bb8f45f76d
 
 name:           hq
 version:        0.1.0.0
@@ -29,11 +29,14 @@ source-repository head
 
 library
   exposed-modules:
+      Q.Bachelier
       Q.BlackScholes
       Q.ContingentClaim
       Q.ContingentClaim.Options
       Q.ImpliedVol.LetsBeRational
+      Q.ImpliedVol.Normal
       Q.MonteCarlo
+      Q.Options
       Q.Plotting
       Q.Stats.Arima
       Q.Stats.TimeSeries
@@ -63,6 +66,8 @@ library
     , gnuplot
     , hmatrix
     , hmatrix-gsl
+    , hspec
+    , hspec-expectations
     , hvega
     , ieee754
     , math-functions
@@ -86,6 +91,8 @@ test-suite hq-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Q.BachelierSpec
+      Q.ImpliedVol.NormalSpec
       Paths_hq
   hs-source-dirs:
       test
@@ -104,6 +111,8 @@ test-suite hq-test
     , hmatrix
     , hmatrix-gsl
     , hq
+    , hspec
+    , hspec-expectations
     , hvega
     , ieee754
     , math-functions
