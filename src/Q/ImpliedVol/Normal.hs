@@ -11,12 +11,17 @@ import Numeric.Natural
 
 
 -- | Method to use to calculate the normal implied vol.
-data Method = Jackel        -- ^ Jackel analytical formula approximation.
-            | ChoKimKwak    -- ^ J. Choi, K kim, and M. Kwak (2009)
-            | RootFinding { -- ^ Numerical root finding. Currently Ridders is used.
-                  maxIter ::  {-# UNPACK #-}!Natural -- ^ Maximum number of iterations.
-                , tol     :: !Tolerance             -- ^ Tolerance (relative or absolute)
-              }
+data Method =
+    Jackel        -- ^ Jackel analytical formula approximation.
+  | ChoKimKwak    -- ^ J. Choi, K kim, and M. Kwak (2009)
+  | RootFinding { -- ^ Numerical root finding. Currently Ridders is used.
+        maxIter ::  Natural                 -- ^ Maximum number of iterations.
+      , tol     ::  Tolerance               -- ^ Tolerance (relative or absolute)
+      , bracket :: (Double, Double, Double) -- ^ Triple of @(low bound, initial
+                                           --   guess, upper bound)@. If initial
+                                           --   guess if out of bracket middle
+                                           --   of bracket is taken as.
+      }
 
 instance Default Method where
   def = Jackel
@@ -81,9 +86,11 @@ euImpliedVolWith' ChoKimKwak cp (Forward f) (Strike k) (YearFrac t) (Rate r) (Pr
 
 
 euImpliedVolWith' RootFinding{..}  cp (Forward forward) k t r (Premium p) =
-  let root = ridders (RiddersParam (fromEnum maxIter) tol) (epsilon, 5*forward) f
-      f vol = p' - p where (Premium p') = vPremium $ euOption b cp k t
-                           b            = Bachelier (Forward forward) r (Vol vol)
+  let root = ridders (RiddersParam (fromEnum maxIter) tol) (lb, ub) f where
+      f vol        = p' - p  where
+        (Premium p') = vPremium $ euOption b cp k t
+        b            = Bachelier (Forward forward) r (Vol vol)
+      (lb, _, ub)  = bracket
   in case root of (Root vol) -> Vol vol
                   NotBracketed -> error "not bracketed"
                   SearchFailed -> error "search failed"
