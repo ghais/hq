@@ -52,6 +52,7 @@ dependencies:
 - erf
 - hspec
 - hspec-expectations
+- data-default-class
 
 library:
   source-dirs: src

@@ -4,10 +4,13 @@ import           Q.Types
 import           Statistics.Distribution        (cumulative, density)
 import           Statistics.Distribution.Normal (standard)
 import Numeric.IEEE (epsilon, minNormal, maxFinite)
+import           Numeric.RootFinding
+import Data.Default.Class
 
 -- | Method to use to calculate the normal implied vol.
 data Method = Jackel     -- ^ Jackel analytical formula approximation.
             | ChoKimKwak -- ^ J. Choi, K kim, and M. Kwak (2009)
+            | RootFinding
 
 -- | Default method implementation of 'euImpliedVolWith' using Jackel.
 euImpliedVol = euImpliedVolWith Jackel
@@ -65,7 +68,13 @@ euImpliedVolWith ChoKimKwak cp (Forward f) (Strike k) (YearFrac t) (Rate r) (Pre
   in Vol $ sqrt (pi / (2 * t)) * straddlePremium * heta
 
 
-
+euImpliedVolWith RootFinding cp (Forward forward) k t r (Premium p) =
+  let root = ridders def (epsilon, 5*forward) f
+      f vol = p' - p where (Premium p') = vPremium $ euOption b cp k t
+                           b            = Bachelier (Forward forward) r (Vol vol)
+  in case root of (Root vol) -> Vol vol
+                  NotBracketed -> error "not bracketed"
+                  SearchFailed -> error "search failed"
 
 sqrtEpsilon = sqrt epsilon      
 h eta = sqrt(eta) * (num / den) where
@@ -91,3 +100,14 @@ h eta = sqrt(eta) * (num / den) where
 
   num = a0 + eta * (a1 + eta * (a2 + eta * (a3 + eta * (a4 + eta * (a5 + eta * (a6 + eta * a7))))))
   den = b0 + eta * (b1 + eta * (b2 + eta * (b3 + eta * (b4 + eta * (b5 + eta * (b6 + eta * (b7 + eta * (b8 + eta * b9))))))))
+
+
+
+f = Forward 100
+vol = Vol 10
+k = Strike 100
+t = YearFrac 1
+r = Rate 0
+b = Bachelier f r vol
+p = vPremium $ eucall b k t
+vol' = euImpliedVol Call f k t r p
