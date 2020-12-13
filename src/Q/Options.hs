@@ -11,5 +11,6 @@ data Valuation = Valuation {
 
 
 -- | intrinsinc value of an option.
-intrinsinc Call f k = max (f - k) 0
-intrinsinc Put  f k = max (k - f) 0
+intrinsinc :: OptionType -> Forward -> Strike -> Premium
+intrinsinc Call (Forward f) (Strike k) = Premium $ max (f - k) 0
+intrinsinc Put  (Forward f) (Strike k) = Premium $ max (k - f) 0

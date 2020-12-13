@@ -1,3 +1,4 @@
+{-# LANGUAGE RecordWildCards #-}
 module Q.ImpliedVol.Normal where
 import           Q.Bachelier
 import           Q.Types
@@ -6,21 +7,32 @@ import           Statistics.Distribution.Normal (standard)
 import Numeric.IEEE (epsilon, minNormal, maxFinite)
 import           Numeric.RootFinding
 import Data.Default.Class
+import Numeric.Natural
+
 
 -- | Method to use to calculate the normal implied vol.
-data Method = Jackel     -- ^ Jackel analytical formula approximation.
-            | ChoKimKwak -- ^ J. Choi, K kim, and M. Kwak (2009)
-            | RootFinding
+data Method = Jackel        -- ^ Jackel analytical formula approximation.
+            | ChoKimKwak    -- ^ J. Choi, K kim, and M. Kwak (2009)
+            | RootFinding { -- ^ Numerical root finding. Currently Ridders is used.
+                  maxIter ::  {-# UNPACK #-}!Natural -- ^ Maximum number of iterations.
+                , tol     :: !Tolerance             -- ^ Tolerance (relative or absolute)
+              }
 
--- | Default method implementation of 'euImpliedVolWith' using Jackel.
-euImpliedVol = euImpliedVolWith Jackel
+instance Default Method where
+  def = Jackel
+
+-- | Default method implementation of 'euImpliedVolWith' using 'Jackel'.
+euImpliedVol = euImpliedVolWith def
 
 -- | Calcualte the bachelier option implied vol of a european option.
+--
+-- If the options premium is below intrinsinc we return 0.
 euImpliedVolWith :: Method -> OptionType -> Forward -> Strike -> YearFrac -> Rate -> Premium -> Vol
-
-euImpliedVolWith Jackel cp (Forward f) (Strike k) (YearFrac t) (Rate r) (Premium p)
-  -- Case of no time value. We return 0 vol.
+euImpliedVolWith m cp f k t r p
   | p == intrinsinc cp f k = Vol $ 0
+  | otherwise             = euImpliedVolWith' m cp f k t r p
+
+euImpliedVolWith' Jackel cp (Forward f) (Strike k) (YearFrac t) (Rate r) (Premium p)
   -- Case of ATM. Solve directly. (TODO: configurable threshold?)
   | abs (k - f) <= 1e-10 = Vol $ p * sqrt2Pi / (sqrt t)
   -- Case of ITM option. Calcualte vol of the out of the money option with Put-Call-Parity.
@@ -55,7 +67,7 @@ euImpliedVolWith Jackel cp (Forward f) (Strike k) (YearFrac t) (Rate r) (Premium
         sqrt2Pi      = 2.506628274631000
 
 
-euImpliedVolWith ChoKimKwak cp (Forward f) (Strike k) (YearFrac t) (Rate r) (Premium p) =
+euImpliedVolWith' ChoKimKwak cp (Forward f) (Strike k) (YearFrac t) (Rate r) (Premium p) =
   let df              = exp $ (-r) * t
       forwardPremium  = p / df
       straddlePremium = case cp of Call -> 2 * forwardPremium - (f - k)
@@ -68,8 +80,8 @@ euImpliedVolWith ChoKimKwak cp (Forward f) (Strike k) (YearFrac t) (Rate r) (Pre
   in Vol $ sqrt (pi / (2 * t)) * straddlePremium * heta
 
 
-euImpliedVolWith RootFinding cp (Forward forward) k t r (Premium p) =
-  let root = ridders def (epsilon, 5*forward) f
+euImpliedVolWith' RootFinding{..}  cp (Forward forward) k t r (Premium p) =
+  let root = ridders (RiddersParam (fromEnum maxIter) tol) (epsilon, 5*forward) f
       f vol = p' - p where (Premium p') = vPremium $ euOption b cp k t
                            b            = Bachelier (Forward forward) r (Vol vol)
   in case root of (Root vol) -> Vol vol
