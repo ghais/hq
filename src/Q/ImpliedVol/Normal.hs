@@ -1,13 +1,13 @@
 {-# LANGUAGE RecordWildCards #-}
 module Q.ImpliedVol.Normal where
+import           Data.Default.Class
+import           Numeric.IEEE                   (epsilon, maxFinite, minNormal)
+import           Numeric.Natural
+import           Numeric.RootFinding
 import           Q.Bachelier
 import           Q.Types
 import           Statistics.Distribution        (cumulative, density)
 import           Statistics.Distribution.Normal (standard)
-import Numeric.IEEE (epsilon, minNormal, maxFinite)
-import           Numeric.RootFinding
-import Data.Default.Class
-import Numeric.Natural
 
 
 -- | Method to use to calculate the normal implied vol.
@@ -21,7 +21,7 @@ data Method =
                                            --   guess, upper bound)@. If initial
                                            --   guess if out of bracket middle
                                            --   of bracket is taken as.
-      }
+        }
 
 instance Default Method where
   def = Jackel
@@ -86,16 +86,16 @@ euImpliedVolWith' ChoKimKwak cp (Forward f) (Strike k) (YearFrac t) (Rate r) (Pr
 
 
 euImpliedVolWith' RootFinding{..}  cp (Forward forward) k t r (Premium p) =
-  let root = ridders (RiddersParam (fromEnum maxIter) tol) (lb, ub) f where
-      f vol        = p' - p  where
+  let f vol        = p' - p  where
         (Premium p') = vPremium $ euOption b cp k t
         b            = Bachelier (Forward forward) r (Vol vol)
-      (lb, _, ub)  = bracket
-  in case root of (Root vol) -> Vol vol
+      (lb, _, ub) = bracket
+      root = ridders (RiddersParam (fromEnum maxIter) tol) (lb, ub) f
+  in case root of (Root vol)   -> Vol vol
                   NotBracketed -> error "not bracketed"
                   SearchFailed -> error "search failed"
 
-sqrtEpsilon = sqrt epsilon      
+sqrtEpsilon = sqrt epsilon
 h eta = sqrt(eta) * (num / den) where
   a0          = 3.994961687345134e-1
   a1          = 2.100960795068497e+1
