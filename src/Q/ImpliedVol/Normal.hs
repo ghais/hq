@@ -38,7 +38,7 @@ euImpliedVolWith m cp f k t r p
   | otherwise             = euImpliedVolWith' m cp f k t r p
 
 euImpliedVolWith' Jackel cp (Forward f) (Strike k) (YearFrac t) (Rate r) (Premium p)
-  -- Case of ATM. Solve directly. (TODO: configurable threshold?)
+  -- Case of ATM. Solve directly.
   | abs (k - f) <= epsilon = Vol $ p * sqrt2Pi / (sqrt t)
   -- Case of ITM option. Calcualte vol of the out of the money option with Put-Call-Parity.
   | phiStarTilde >= 0
