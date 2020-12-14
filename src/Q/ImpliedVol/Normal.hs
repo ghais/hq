@@ -38,6 +38,10 @@ euImpliedVolWith m cp f k t r p
   | otherwise             = euImpliedVolWith' m cp f k t r p
 
 euImpliedVolWith' Jackel cp (Forward f) (Strike k) (YearFrac t) (Rate r) (Premium p)
+  -- Case where interest rate is not 0 we need undiscount. The paper is written
+  -- for the undiscounted Bachelier option prices.
+  | r /= 0
+    = euImpliedVol cp (Forward f) (Strike k) (YearFrac t) (Rate 0) (Premium (p/df))
   -- Case of ATM. Solve directly. (TODO: configurable threshold?)
   | abs (k - f) <= epsilon = Vol $ p * sqrt2Pi / (sqrt t)
   -- Case of ITM option. Calcualte vol of the out of the money option with Put-Call-Parity.
