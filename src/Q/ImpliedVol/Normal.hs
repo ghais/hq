@@ -119,14 +119,3 @@ h eta = sqrt(eta) * (num / den) where
 
   num = a0 + eta * (a1 + eta * (a2 + eta * (a3 + eta * (a4 + eta * (a5 + eta * (a6 + eta * a7))))))
   den = b0 + eta * (b1 + eta * (b2 + eta * (b3 + eta * (b4 + eta * (b5 + eta * (b6 + eta * (b7 + eta * (b8 + eta * b9))))))))
-
-
-
-f = Forward 100
-vol = Vol 10
-k = Strike 100
-t = YearFrac 1
-r = Rate 0
-b = Bachelier f r vol
-p = vPremium $ eucall b k t
-vol' = euImpliedVol Call f k t r p
