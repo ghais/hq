@@ -25,24 +25,26 @@ import           Q.Types
 data Bachelier = Bachelier Forward Rate Vol deriving Show
 
 -- | European option valuation with bachelier model.
-euOption ::  Bachelier -> OptionType -> Strike -> YearFrac -> Valuation
-euOption (Bachelier (Forward f) (Rate r) (Vol sigma)) cp (Strike k) (YearFrac t)
+euOption :: Bachelier -> EuOption -> Valuation
+euOption (Bachelier (Forward f) (Rate r) (Vol sigma)) opt
   = Valuation premium delta vega gamma where
-    premium = Premium $ df * (q*(f - k)*n(q*d1) + sigma*sqrt(t)/sqrt2Pi * (exp(-0.5 *d1 * d1)))
-    delta   = Delta   $ df * n (q * d1)
-    vega    = Vega    $ df * (sqrt t) / sqrt2Pi * (exp (-0.5 * d1 * d1))
-    gamma   = Gamma   $ (df/(sigma * (sqrt t)))*(recip sqrt2Pi)*(exp(-0.5 *d1 * d1))
-    d1 = (f - k) / (sigma * sqrt(t))
-    q = cpi cp
-    sqrt2Pi = sqrt (2*pi)
-    df =  exp $ (-r) * t
-    n = cumulative standard
+    premium      = Premium $ df * (q*(f - k)*n(q*d1) + sigma*sqrt(t)/sqrt2Pi * (exp(-0.5 *d1 * d1)))
+    delta        = Delta   $ df * n (q * d1)
+    vega         = Vega    $ df * (sqrt t) / sqrt2Pi * (exp (-0.5 * d1 * d1))
+    gamma        = Gamma   $ (df/(sigma * (sqrt t)))*(recip sqrt2Pi)*(exp(-0.5 *d1 * d1))
+    d1           = (f - k) / (sigma * sqrt(t))
+    sqrt2Pi      = sqrt (2*pi)
+    df           = exp $ (-r) * t
+    n            = cumulative standard
+    (YearFrac t) = expiry opt
+    (Strike k)   = strike opt
+    q            = cpi opt
 
 -- | see 'euOption'
-euput b =  euOption b Put
+euput b t k =  euOption b (EuOption t k Call)
 
 -- | see 'euOption'
-eucall b = euOption b Call
+eucall b t k = euOption b (EuOption t k Put)
 
 
 instance Model Bachelier Double where

@@ -56,6 +56,14 @@ dependencies:
 
 library:
   source-dirs: src
+  cxx-sources:
+        - external/src/lets_be_rational.cpp
+        - external/src/normaldistribution.cpp
+        - external/src/rationalcubic.cpp
+        - external/src/erf_cody.cpp
+  include-dirs:
+        - external/include
+        - external/src
 
 tests:
   hq-test:

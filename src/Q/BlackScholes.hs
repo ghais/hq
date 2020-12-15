@@ -25,6 +25,9 @@ import           Statistics.Distribution.Normal (standard)
 
 dcf = dcYearFraction ThirtyUSA
 
+
+
+
 -- | Parameters for a simplified black scholes equation.
 data BlackScholes = BlackScholes {
     bsSpot :: Spot -- ^ The asset's spot on the valuation date.

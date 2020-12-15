@@ -32,22 +32,21 @@ euImpliedVol = euImpliedVolWith def
 -- | Calcualte the bachelier option implied vol of a european option.
 --
 -- If the options premium does not have time value @'hasTimeValue'@ return 0.
-euImpliedVolWith :: Method -> OptionType -> Forward -> Strike -> YearFrac -> Rate -> Premium -> Vol
-euImpliedVolWith m cp f k t r p
-  | hasTimeValue cp f k p df = euImpliedVolWith' m cp f k t r p
-  | otherwise                = Vol $ 0
-  where df = discountFactor r t
+euImpliedVolWith :: Method -> Forward -> DF -> EuOption -> Premium -> Vol
+euImpliedVolWith m f df opt p
+  | hasTimeValue f df opt p = euImpliedVolWith' m f df opt p
+  | otherwise               = Vol $ 0
 
-euImpliedVolWith' Jackel cp (Forward f) (Strike k) (YearFrac t) (Rate r) (Premium p)
-  -- Case where interest rate is not 0 we need undiscount. The paper is written
+euImpliedVolWith' Jackel (Forward f) (DF df) opt (Premium p)
+  -- Case where df is not 1 we need undiscount. The paper is written
   -- for the undiscounted Bachelier option prices.
-  | r /= 0
-    = euImpliedVol cp (Forward f) (Strike k) (YearFrac t) (Rate 0) (Premium (p/df))
+  | df /= 1
+    = euImpliedVol (Forward f) (DF df) opt ((DF df) `undiscount` (Premium p))
   -- Case of ATM. Solve directly.
   | abs (k - f) <= epsilon = Vol $ p * sqrt2Pi / (sqrt t)
   -- Case of ITM option. Calcualte vol of the out of the money option with Put-Call-Parity.
   | phiStarTilde >= 0
-    = euImpliedVol (succ cp) (Forward f) (Strike k) (YearFrac t) (Rate r) (Premium p')
+    = euImpliedVol (Forward f) (DF df) (flipCP opt) (Premium p')
   -- General case for an out of the money option.
   | otherwise  = let
       ẋ      = if phiStarTilde < c then
@@ -69,28 +68,29 @@ euImpliedVolWith' Jackel cp (Forward f) (Strike k) (YearFrac t) (Rate r) (Premiu
       q       =  (phiXBarTilde-phiStarTilde)/ (density standard ẋ)
     in Vol $ (abs (k - f)) / (abs (x * sqrt t))
   where phiStarTilde = negate $ (abs (p - (max (theta * (f - k)) 0))) / (abs (k - f))
-        theta        = if cp == Call then 1 else -1
+        theta        = cpi opt
         phiTilde     = (-theta) * p / (k - f)
-        p'           = cpi * df * (f - k) + p
+        p'           = theta * df * (f - k) + p
         cpi          = fromIntegral $ fromEnum cp --call put indicartor.
-        df           = exp $ (-r) * t
         sqrt2Pi      = 2.506628274631000
+        (Strike k)   = strike opt
+        (YearFrac t) = expiry opt
 
-
-euImpliedVolWith' ChoKimKwak cp (Forward f) (Strike k) (YearFrac t) (Rate r) (Premium p) =
-  let df              = exp $ (-r) * t
-      forwardPremium  = p / df
-      straddlePremium = case cp of Call -> 2 * forwardPremium - (f - k)
-                                   Put  -> 2 * forwardPremium + (f - k)
+euImpliedVolWith' ChoKimKwak (Forward f) (DF df) opt (Premium p) =
+  let forwardPremium  = p / df
+      straddlePremium = case cp opt of Call -> 2 * forwardPremium - (f - k)
+                                       Put  -> 2 * forwardPremium + (f - k)
       nu'             = (f - k) / straddlePremium
       nu              = max (-1 + epsilon) (min nu' (1 - epsilon))
       eta             | abs nu < sqrtEpsilon = 1
                       | otherwise            = nu / (atanh nu)
       heta            = h eta
+      (Strike k)      = strike opt
+      (YearFrac t)    = expiry opt
   in Vol $ sqrt (pi / (2 * t)) * straddlePremium * heta
 
 
-euImpliedVolWith' RootFinding{..}  cp (Forward forward) k t r (Premium p) =
+euImpliedVolWith' RootFinding{..}  (Forward forward) (DF df) opt (Premium p) =
   let f vol        = p' - p  where
         (Premium p') = vPremium $ euOption b cp k t
         b            = Bachelier (Forward forward) r (Vol vol)

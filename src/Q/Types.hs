@@ -1,3 +1,4 @@
+{-# LANGUAGE DatatypeContexts #-}
 {-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -27,7 +28,6 @@ module Q.Types (
   , DF(..)
   , Vol(..)
   , TimeScaleable(..)
-  , cpi
   , discountFactor
   , discount
   , undiscount
@@ -51,11 +51,9 @@ instance Enum OptionType where
   fromEnum Call = 1
   fromEnum Put = -1
 
-cpi Call = 1
-cpi Put  = -1
-newtype Spot     = Spot    Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
-newtype Forward  = Forward Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
-newtype Strike   = Strike  Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
+newtype (Num a) => Spot a    = Spot    a deriving (Generic, Eq, Show, Ord, Num, Functor, Applicative)
+newtype (Num a) => Forward a = Forward a deriving (Generic, Eq, Show, Ord, Num, Functor, Applicative)
+newtype Strike   = Strike  a deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
 
 -- Later on i should add roll.
 newtype Expiry   = Expiry   Day    deriving (Generic, Eq, Show, Ord)
@@ -71,7 +69,8 @@ newtype Rate     = Rate Double deriving (Generic, Eq, Show, Ord, Num, Fractional
 newtype DF       = DF   Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
 
 discountFactor (Rate r) (YearFrac t) = DF $ exp ((-r) * t)
-discount (DF df) (Premium p) = Premium $ p * df
+
+discount (DF df) p = pure ( p * df)
 undiscount df p = recip $ df `discount` p
 
 newtype Vol      = Vol  Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)

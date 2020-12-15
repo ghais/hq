@@ -1,10 +1,10 @@
-cabal-version: 1.12
+cabal-version: 2.2
 
--- This file has been generated from package.yaml by hpack version 0.34.2.
+-- This file has been generated from package.yaml by hpack version 0.33.0.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: fd8cc11a6d6bab5efaf250d32a709d0d5e018a3087ccc85f081018097a376209
+-- hash: 1a489bb1d03fcb13e991627aef350d7cd863735d1d985b0e58bd81b65ac37793
 
 name:           hq
 version:        0.1.0.0
@@ -15,7 +15,7 @@ bug-reports:    https://github.com/github.com/ghais/issues
 author:         Ghais
 maintainer:     0x47@0x49.dev
 copyright:      2020 Ghais Issa here
-license:        BSD3
+license:        BSD-3-Clause
 license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
@@ -30,6 +30,7 @@ source-repository head
 library
   exposed-modules:
       Q.Bachelier
+      Q.Black76
       Q.BlackScholes
       Q.ContingentClaim
       Q.ContingentClaim.Options
@@ -53,6 +54,14 @@ library
       Paths_hq
   hs-source-dirs:
       src
+  include-dirs:
+      external/include
+      external/src
+  cxx-sources:
+      external/src/lets_be_rational.cpp
+      external/src/normaldistribution.cpp
+      external/src/rationalcubic.cpp
+      external/src/erf_cody.cpp
   build-depends:
       Chart
     , Chart-diagrams
