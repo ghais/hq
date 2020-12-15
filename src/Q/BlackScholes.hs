@@ -5,6 +5,8 @@ module Q.BlackScholes (
     BlackScholes(..)
   , atmf
   , euOption
+  , eucall
+  , euput
   , module Q.Options
 ) where
 import           Control.Monad.State
@@ -12,7 +14,6 @@ import           Data.Random                    hiding (Gamma)
 import           Data.Time
 import           Numeric.RootFinding
 import           Q.ContingentClaim.Options
-import           Q.ImpliedVol.LetsBeRational    (black)
 import           Q.MonteCarlo
 import           Q.Options
 import           Q.Stochastic.Discretize
