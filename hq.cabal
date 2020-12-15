@@ -1,10 +1,10 @@
-cabal-version: 1.12
+cabal-version: 2.2
 
 -- This file has been generated from package.yaml by hpack version 0.34.2.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: fd8cc11a6d6bab5efaf250d32a709d0d5e018a3087ccc85f081018097a376209
+-- hash: ffd49f847e858dc0eab52e9ce471a7c19ff1e58b479c917806e379ff05969fc4
 
 name:           hq
 version:        0.1.0.0
@@ -15,7 +15,7 @@ bug-reports:    https://github.com/github.com/ghais/issues
 author:         Ghais
 maintainer:     0x47@0x49.dev
 copyright:      2020 Ghais Issa here
-license:        BSD3
+license:        BSD-3-Clause
 license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
@@ -53,6 +53,14 @@ library
       Paths_hq
   hs-source-dirs:
       src
+  include-dirs:
+      external/include
+      external/src
+  cxx-sources:
+      external/src/lets_be_rational.cpp
+      external/src/normaldistribution.cpp
+      external/src/rationalcubic.cpp
+      external/src/erf_cody.cpp
   build-depends:
       Chart
     , Chart-diagrams

@@ -4,7 +4,7 @@ github:              "github.com/ghais/hq"
 license:             BSD3
 author:              "Ghais"
 maintainer:          "0x47@0x49.dev"
-copyright:           "2020 Ghais Issa here"
+copyright:           "2020 Ghais Issa"
 
 extra-source-files:
 - README.md
@@ -56,6 +56,14 @@ dependencies:
 
 library:
   source-dirs: src
+  cxx-sources:
+        - external/src/lets_be_rational.cpp
+        - external/src/normaldistribution.cpp
+        - external/src/rationalcubic.cpp
+        - external/src/erf_cody.cpp
+  include-dirs:
+        - external/include
+        - external/src
 
 tests:
   hq-test:
