@@ -28,6 +28,9 @@ module Q.Types (
   , Vol(..)
   , TimeScaleable(..)
   , cpi
+  , discountFactor
+  , discount
+  , undiscount
   ) where
 
 import           Data.Csv     (FromField(..), ToField(..))
@@ -66,7 +69,14 @@ newtype YearFrac = YearFrac Double deriving (Generic, Eq, Show, Ord, Num, Fracti
 
 newtype Rate     = Rate Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
 newtype DF       = DF   Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
+
+discountFactor (Rate r) (YearFrac t) = DF $ exp ((-r) * t)
+discount (DF df) (Premium p) = Premium $ p * df
+undiscount df p = recip $ df `discount` p
+
 newtype Vol      = Vol  Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
+
+
 
 instance FromField OptionType where
   parseField s | (s == "C" || s == "c") = pure Call
