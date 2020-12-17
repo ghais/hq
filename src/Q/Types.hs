@@ -1,6 +1,11 @@
+{-# LANGUAGE DeriveFunctor              #-}
 {-# LANGUAGE DeriveGeneric              #-}
+{-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE MultiParamTypeClasses      #-}
+{-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE QuantifiedConstraints      #-}
+{-# LANGUAGE RankNTypes                 #-}
 
 module Q.Types (
     Observables1(..)
@@ -31,14 +36,15 @@ module Q.Types (
   , discountFactor
   , discount
   , undiscount
+  , forward
   ) where
 
-import           Data.Csv     (FromField(..), ToField(..))
+import qualified Data.ByteString as B
+import           Data.Csv        (FromField (..), ToField (..))
 import           Data.Time
-import           GHC.Generics (Generic)
+import           GHC.Generics    (Generic)
 import           Q.Time
 import           Q.Time.Date
-import qualified Data.ByteString as B
 
 -- | Type for Put or Calls
 data OptionType  = Put | Call deriving (Generic, Eq, Show, Bounded)
@@ -49,32 +55,50 @@ instance Enum OptionType where
   pred = succ
   toEnum x = if signum x == 1 then Call else Put
   fromEnum Call = 1
-  fromEnum Put = -1
+  fromEnum Put  = -1
 
 cpi Call = 1
 cpi Put  = -1
-newtype Spot     = Spot    Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
-newtype Forward  = Forward Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
-newtype Strike   = Strike  Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
+
+newtype Strike a  = Strike a  deriving (Generic, Eq, Show, Read, Ord, Num, Fractional, Floating)
+newtype Spot a    = Spot a    deriving (Generic, Eq, Show, Read, Ord, Num, Fractional, Floating)
+newtype Forward a = Forward a deriving (Generic, Eq, Show, Read, Ord, Num, Fractional, Floating, Functor)
+
 
 -- Later on i should add roll.
-newtype Expiry   = Expiry   Day    deriving (Generic, Eq, Show, Ord)
+newtype Expiry   = Expiry   Day    deriving (Generic, Eq, Show, Read, Ord)
 
-newtype Premium  = Premium  Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
-newtype Delta    = Delta    Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
-newtype Vega     = Vega     Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
-newtype Gamma    = Gamma    Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
+newtype Premium a = Premium  a deriving (Generic, Eq, Show, Read, Ord, Num, Fractional, Floating, Functor)
+instance Applicative Premium where
+  pure a = Premium a
+  (Premium f) <*> (Premium p) = Premium (f p)
 
-newtype YearFrac = YearFrac Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
 
-newtype Rate     = Rate Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
-newtype DF       = DF   Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
+instance Applicative Forward where
+  pure a = Forward a
+  (Forward f) <*> (Forward p) = Forward (f p)
 
-discountFactor (Rate r) (YearFrac t) = DF $ exp ((-r) * t)
-discount (DF df) (Premium p) = Premium $ p * df
-undiscount df p = recip $ df `discount` p
+newtype Delta a   = Delta a deriving (Generic, Eq, Show, Read, Ord, Num, Fractional, Floating)
+newtype Vega a    = Vega a deriving (Generic, Eq, Show, Read, Ord, Num, Fractional, Floating)
+newtype Gamma a   = Gamma a  deriving (Generic, Eq, Show, Read, Ord, Num, Fractional, Floating)
 
-newtype Vol      = Vol  Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
+newtype YearFrac = YearFrac Double deriving (Eq, Show, Read, Ord, Num, Fractional, Floating)
+
+newtype Rate a    = Rate a deriving (Generic, Eq, Show, Read, Ord, Num, Fractional, Floating)
+newtype DF a      = DF a  deriving (Generic, Eq, Show, Read, Ord, Num, Fractional, Floating)
+
+discountFactor (YearFrac t) (Rate r) = DF $ exp ((-r) * t)
+
+discount :: (Applicative f, Floating a) => DF a -> f a -> f a
+discount (DF df) v = fmap (* df) v
+
+undiscount :: (Applicative f, Floating a) => DF a -> f a -> f a
+undiscount = forward
+
+forward :: (Applicative f, Floating a) => DF a -> f a -> f a 
+forward (DF df) v = fmap (/ df) v
+
+newtype Vol a     = Vol  a deriving (Generic, Eq, Show, Read, Ord, Num, Fractional, Floating)
 
 
 
@@ -85,14 +109,14 @@ instance ToField OptionType where
   toField Call = toField ("C"::B.ByteString)
   toField Put  = toField ("P"::B.ByteString)
 
-instance FromField Spot where
+instance FromField (Spot Double) where
   parseField s = Spot <$> parseField s
-instance ToField Spot where
+instance ToField (Spot Double) where
   toField (Spot k) = toField k
-  
-instance FromField Strike where
+
+instance FromField (Strike Double) where
   parseField s = Strike <$> parseField s
-instance ToField Strike where
+instance ToField (Strike Double) where
   toField (Strike k) = toField k
 
 instance FromField Expiry where
@@ -100,49 +124,49 @@ instance FromField Expiry where
 instance ToField   Expiry where
   toField (Expiry k) = toField k
 
-instance FromField Premium where
+instance FromField (Premium Double) where
     parseField s = Premium <$> parseField s
-instance ToField   Premium  where
+instance ToField   (Premium Double)  where
   toField (Premium k) = toField k
 
-instance FromField Delta where
+instance FromField (Delta Double) where
     parseField s = Delta <$> parseField s
-instance ToField   Delta  where
+instance ToField   (Delta Double)  where
   toField (Delta k) = toField k
 
-instance FromField Vega where
+instance FromField (Vega Double) where
     parseField s =  Vega <$> parseField s
-instance ToField   Vega  where
+instance ToField   (Vega Double) where
   toField (Vega k) = toField k
 
-instance FromField Gamma where
+instance FromField (Gamma Double) where
     parseField s =  Gamma <$> parseField s
-instance ToField   Gamma  where
+instance ToField   (Gamma Double)  where
   toField (Gamma k) = toField k
 
 instance FromField YearFrac where
     parseField s =  YearFrac <$> parseField s
-instance ToField   YearFrac  where
+instance ToField YearFrac  where
   toField (YearFrac k) = toField k
 
-instance FromField Rate where
+instance FromField (Rate Double) where
     parseField s =  Rate <$> parseField s
-instance ToField   Rate  where
+instance ToField   (Rate Double)  where
   toField (Rate k) = toField k
-  
 
-instance FromField Vol where
+
+instance FromField (Vol Double) where
     parseField s =  Vol <$> parseField s
-instance ToField   Vol  where
+instance ToField   (Vol Double)  where
   toField (Vol k) = toField k
 
 -- | Represents concepts that scale as a function of time such as 'Vol'
 class TimeScaleable a where
   scale :: YearFrac -> a -> a
 
-instance TimeScaleable Rate where
+instance TimeScaleable (Rate Double) where
   scale (YearFrac t) (Rate r)  = Rate $ r * t
-instance TimeScaleable Vol where
+instance TimeScaleable (Vol Double) where
   scale (YearFrac t) (Vol sigma)  = Vol $ sigma * sqrt t
 
 

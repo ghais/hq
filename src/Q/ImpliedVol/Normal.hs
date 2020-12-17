@@ -32,11 +32,11 @@ euImpliedVol = euImpliedVolWith def
 -- | Calcualte the bachelier option implied vol of a european option.
 --
 -- If the options premium does not have time value @'hasTimeValue'@ return 0.
-euImpliedVolWith :: Method -> OptionType -> Forward -> Strike -> YearFrac -> Rate -> Premium -> Vol
+euImpliedVolWith :: Method -> OptionType -> Forward Double -> Strike Double -> YearFrac -> Rate Double -> Premium Double -> Vol Double
 euImpliedVolWith m cp f k t r p
   | hasTimeValue cp f k p df = euImpliedVolWith' m cp f k t r p
   | otherwise                = Vol $ 0
-  where df = discountFactor r t
+  where df = discountFactor t r
 
 euImpliedVolWith' Jackel cp (Forward f) (Strike k) (YearFrac t) (Rate r) (Premium p)
   -- Case where interest rate is not 0 we need undiscount. The paper is written

@@ -83,5 +83,5 @@ observationTimes :: ContingentClaim a -> [Day]
 observationTimes = undefined
 
 class Model a b | a -> b where
-  discountFactor :: a -> YearFrac -> YearFrac -> RVar Rate
-  evolve   :: a -> YearFrac -> StateT (YearFrac, b) RVar Double
+  discountFactor :: a -> YearFrac -> YearFrac -> RVar (DF Double)
+  evolve         :: a -> YearFrac -> StateT (YearFrac, b) RVar Double

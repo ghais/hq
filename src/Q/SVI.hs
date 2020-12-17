@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE OverloadedStrings          #-}
@@ -36,5 +37,5 @@ instance Smile SVI where
   totalVar (RSVI (Alpha 𝜶) (Beta 𝜷) (Rho 𝛒) (M 𝐦) (Sigma 𝛔)) (LogRelativeStrike 𝐤) _ =
     𝜶 + 𝜷 * (𝛒 * (𝐤 - 𝐦) + sqrt ((𝐤 - 𝐦) ** 2 + 𝛔 * 𝛔))
 
-instance Smile Vol where
+instance Smile (Vol Double) where
   totalVar (Vol 𝛔) _ (YearFrac t)  = 𝛔 * 𝛔 * t

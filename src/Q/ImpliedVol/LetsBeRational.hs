@@ -17,6 +17,6 @@ foreign import ccall
    "lets_be_rational.h implied_volatility_from_a_transformed_rational_guess" c_lbr ::
      CDouble -> CDouble  -> CDouble -> CDouble  -> CDouble  -> CDouble
 
-euImpliedVol :: OptionType -> Forward -> Strike -> YearFrac -> Rate -> Premium -> Vol
+euImpliedVol :: OptionType -> Forward Double -> Strike Double -> YearFrac -> Rate Double -> Premium Double-> Vol Double
 euImpliedVol cp (Forward f) (Strike k) (YearFrac t) (Rate r) (Premium p) =
   coerce $ c_lbr (CDouble p) (CDouble f) (CDouble k) (CDouble t) (CDouble (cpi cp))

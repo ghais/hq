@@ -1,12 +1,17 @@
-module Q.ImpliedVol.NormalSpec(normalImpliedVolTests) where
-import Test.Hspec hiding (shouldBe)
+module Q.ImpliedVol.NormalSpec
+  (normalImpliedVolTests
+  ) where
+
+import Control.Monad (unless, guard, when)
+import Data.List (intercalate)
 import Q.Bachelier
-import Q.Types
-import Test.Hspec.Expectations
-import           Control.Monad (unless, guard, when)
 import Q.ImpliedVol.Normal
 import Q.Options
-import Data.List (intercalate)
+import Q.Types
+import Test.Hspec hiding (shouldBe)
+import Test.Hspec.Expectations
+
+
 closeTo x y =  compareWith (\x y -> (abs $ (x - y)) <= 1e-5) errorMessage x y where
   errorMessage = "Is not close to"
   compareWith :: (HasCallStack, Show a) => (a -> a -> Bool) -> String -> a -> a -> Expectation
@@ -14,17 +19,15 @@ closeTo x y =  compareWith (\x y -> (abs $ (x - y)) <= 1e-5) errorMessage x y wh
     where errorMsg = show result ++ " " ++ errorDesc ++ " " ++ show expected
   expectTrue msg b = unless b (expectationFailure msg)
 
-
-
 test cp t (k, b@(Bachelier f r sigma))= do
   let v = euOption b cp k t
-      p      = vPremium v      
+      p      = vPremium v
       sigma' = euImpliedVolWith Jackel cp f k t r p
-      df     = discountFactor r t
+      df     = discountFactor t r
   when (hasTimeValue cp f k p df) $
     it (intercalate ", " [show t, show f, show df, show cp, show k, show p, show sigma]) $ do
-        sigma' `closeTo` sigma    
-    
+        sigma' `closeTo` sigma
+
 
 runTests f r strikes vols t = do
   let bs        = [Bachelier f r sigma | sigma <- vols]
@@ -41,7 +44,7 @@ normalImpliedVolTests = hspec $ do
           vols      = [Vol sigma           | sigma <- [1,2..200]]
       let f = Forward 100
       context "1Y option" $ do
-        let t = YearFrac 1                      
+        let t = YearFrac 1
         context "When interest rate is zero (0%)" $ do
           let r         = Rate 0
           runTests f r strikes vols t
