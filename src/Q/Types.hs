@@ -51,8 +51,10 @@ instance Enum OptionType where
   fromEnum Call = 1
   fromEnum Put = -1
 
+
 cpi Call = 1
 cpi Put  = -1
+
 newtype Spot     = Spot    Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
 newtype Forward  = Forward Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
 newtype Strike   = Strike  Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
@@ -71,12 +73,10 @@ newtype Rate     = Rate Double deriving (Generic, Eq, Show, Ord, Num, Fractional
 newtype DF       = DF   Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
 
 discountFactor (Rate r) (YearFrac t) = DF $ exp ((-r) * t)
-discount (DF df) (Premium p) = Premium $ p * df
-undiscount df p = recip $ df `discount` p
+discount (DF df) p = p * df
+undiscount (DF df) p = p / df
 
-newtype Vol      = Vol  Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
-
-
+newtype Vol      = Vol Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
 
 instance FromField OptionType where
   parseField s | (s == "C" || s == "c") = pure Call
@@ -89,7 +89,7 @@ instance FromField Spot where
   parseField s = Spot <$> parseField s
 instance ToField Spot where
   toField (Spot k) = toField k
-  
+
 instance FromField Strike where
   parseField s = Strike <$> parseField s
 instance ToField Strike where

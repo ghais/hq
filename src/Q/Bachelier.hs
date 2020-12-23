@@ -1,5 +1,4 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE RecordWildCards       #-}
 
 module Q.Bachelier (
     Bachelier(..)
@@ -8,13 +7,12 @@ module Q.Bachelier (
   , euput
   , module Q.Options
 ) where
-import           Data.Time
-import           Q.Stochastic.Discretize
-import           Q.Stochastic.Process
-import           Q.Time
+import           Data.Time                      ()
+import           Q.Stochastic.Discretize        ()
+import           Q.Stochastic.Process           ()
+import           Q.Time                         ()
 import           Statistics.Distribution        (cumulative, density)
 import           Statistics.Distribution.Normal (standard)
-
 import           Control.Monad.State
 import           Data.Random                    (RVar, stdNormal)
 import           Q.MonteCarlo

@@ -65,13 +65,25 @@ library:
         - external/include
         - external/src
 
-tests:
-  hq-test:
-    main:                Spec.hs
-    source-dirs:         test
+executables:
+  test-exe:
+    main:                Main.hs
+    source-dirs:         app
     ghc-options:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
     - hq
+
+tests:
+  bachelier:
+    main:                Spec.hs
+    source-dirs:         test/bachelier
+    ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
+    dependencies: [hq]
+  normalimpliedvol:
+    main:                Spec.hs
+    source-dirs:         test/normalimpliedvol
+    ghc-options: [-threaded, -rtsopts, -with-rtsopts=-N]
+    dependencies: [hq]

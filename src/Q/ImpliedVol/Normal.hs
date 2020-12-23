@@ -14,13 +14,14 @@ import           Statistics.Distribution.Normal (standard)
 data Method =
     Jackel        -- ^ Jackel analytical formula approximation.
   | ChoKimKwak    -- ^ J. Choi, K kim, and M. Kwak (2009)
-  | RootFinding { -- ^ Numerical root finding. Currently Ridders is used.
+  -- | Numerical root finding. Currently Ridders is used.
+  | RootFinding {
         maxIter ::  Natural                 -- ^ Maximum number of iterations.
       , tol     ::  Tolerance               -- ^ Tolerance (relative or absolute)
       , bracket :: (Double, Double, Double) -- ^ Triple of @(low bound, initial
-                                           --   guess, upper bound)@. If initial
-                                           --   guess if out of bracket middle
-                                           --   of bracket is taken as.
+                                            --   guess, upper bound)@. If initial
+                                            --   guess if out of bracket middle
+                                            --   of bracket is taken as.
         }
 
 instance Default Method where

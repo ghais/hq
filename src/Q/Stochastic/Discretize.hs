@@ -1,9 +1,6 @@
 {-# LANGUAGE FlexibleContexts       #-}
 {-# LANGUAGE FlexibleInstances      #-}
-{-# LANGUAGE FunctionalDependencies #-}
-{-# LANGUAGE InstanceSigs           #-}
 {-# LANGUAGE MultiParamTypeClasses  #-}
-{-# LANGUAGE NamedFieldPuns         #-}
 {-# LANGUAGE QuantifiedConstraints  #-}
 {-# LANGUAGE RecordWildCards        #-}
 {-# LANGUAGE ScopedTypeVariables    #-}
@@ -16,11 +13,11 @@ import           Data.RVar
 import           Numeric.LinearAlgebra
 import           Q.Stochastic.Process
 -- |Euler discretization of stochastic processes
-data Euler = Euler { eDt :: Double }
+newtype Euler = Euler { eDt :: Double }
         deriving (Show, Eq)
 
 -- | Euler end-point discretization of stochastic processes
-data EndEuler = EndEuler { eeDt :: Double }
+newtype EndEuler = EndEuler { eeDt :: Double }
         deriving (Show, Eq)
 
 

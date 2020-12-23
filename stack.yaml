@@ -1,4 +1,4 @@
-resolver: lts-16.16
+resolver: lts-16.26
 
 packages:
 - .
@@ -14,3 +14,4 @@ extra-deps:
 - hquantlib-0.0.5.0@sha256:05a55acb522d2ce7775cd0a1b2e1b87b501f442bcc1829048a03d3ddc35cc549,4791
 - hmatrix-special-0.19.0.0@sha256:09cc1020ea21d28570cff9e98164773cddb7d757aaf20aff5b59458204bd83c4,2817
 
+allow-newer: true

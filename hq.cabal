@@ -1,10 +1,10 @@
 cabal-version: 2.2
 
--- This file has been generated from package.yaml by hpack version 0.34.2.
+-- This file has been generated from package.yaml by hpack version 0.33.0.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: ffd49f847e858dc0eab52e9ce471a7c19ff1e58b479c917806e379ff05969fc4
+-- hash: 62e6e526a50b13e4ad99990407369638b49f59d7f6cc31d2a68e645767e5ed66
 
 name:           hq
 version:        0.1.0.0
@@ -14,7 +14,7 @@ homepage:       https://github.com/github.com/ghais#readme
 bug-reports:    https://github.com/github.com/ghais/issues
 author:         Ghais
 maintainer:     0x47@0x49.dev
-copyright:      2020 Ghais Issa here
+copyright:      2020 Ghais Issa
 license:        BSD-3-Clause
 license-file:   LICENSE
 build-type:     Simple
@@ -96,15 +96,101 @@ library
     , vector
   default-language: Haskell2010
 
-test-suite hq-test
+executable test-exe
+  main-is: Main.hs
+  other-modules:
+      StudyDelta
+      Paths_hq
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      Chart
+    , Chart-diagrams
+    , ad
+    , base >=4.7 && <5
+    , bytestring
+    , cassava
+    , containers
+    , conversion
+    , data-default-class
+    , erf
+    , gnuplot
+    , hmatrix
+    , hmatrix-gsl
+    , hq
+    , hspec
+    , hspec-expectations
+    , hvega
+    , ieee754
+    , math-functions
+    , mersenne-random-pure64
+    , monad-loops
+    , mtl
+    , random
+    , random-fu
+    , random-fu-multivariate
+    , random-source
+    , rvar
+    , sorted-list
+    , statistics
+    , text
+    , time
+    , transformers
+    , vector
+  default-language: Haskell2010
+
+test-suite bachelier
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Q.BachelierSpec
-      Q.ImpliedVol.NormalSpec
       Paths_hq
   hs-source-dirs:
-      test
+      test/bachelier
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      Chart
+    , Chart-diagrams
+    , ad
+    , base >=4.7 && <5
+    , bytestring
+    , cassava
+    , containers
+    , conversion
+    , data-default-class
+    , erf
+    , gnuplot
+    , hmatrix
+    , hmatrix-gsl
+    , hq
+    , hspec
+    , hspec-expectations
+    , hvega
+    , ieee754
+    , math-functions
+    , mersenne-random-pure64
+    , monad-loops
+    , mtl
+    , random
+    , random-fu
+    , random-fu-multivariate
+    , random-source
+    , rvar
+    , sorted-list
+    , statistics
+    , text
+    , time
+    , transformers
+    , vector
+  default-language: Haskell2010
+
+test-suite normalimpliedvol
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_hq
+  hs-source-dirs:
+      test/normalimpliedvol
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       Chart

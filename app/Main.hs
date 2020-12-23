@@ -67,7 +67,7 @@ plotPayouts = do
   let strike      = 100.0
       lowStrike   = 95.0
       highStrike  = 105.0
-      expiry      = fromGregorian' 2015 3 31
+      expiry      = fromGregorian 2015 3 31
       spots       = [90, 90.01..110]
       calls       = map (vanillaPayout Call strike) spots
       puts        = map (vanillaPayout Put strike) spots
@@ -122,15 +122,15 @@ studyDelta = do
   let today           = fromGregorian 2015 3 31
       expiry          = YearFrac 1
       vol             = 0.6
-      spot            = (100::Double)
+      spot            =  100
       strikes         = map Strike [80, 81..120]
       vols            = [0.01,0.06..1]
       expiries        = map YearFrac [0.1,0.2..2]
       relativeStrikes = [log (k/(atmf bs expiry)) | k <- strikes]
       r               = 0.01
       bs              = BlackScholes spot r vol
-      delta cp k      = vDelta (euOption cp bs k expiry)
-      pv    cp k      = vPremium (euOption cp bs k expiry)
+      delta cp k      = vDelta (euOption bs cp k expiry)
+      pv    cp k      = vPremium (euOption bs cp k expiry)
       row (vol,k,t)     = [show today,
                          show t,
                          show $log (k / atmf bs t),

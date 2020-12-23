@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Q.BachelierSpec (bachelierTests) where
+module Main where
 import Test.Hspec hiding (shouldBe)
 import Q.Bachelier
 import Q.Types
@@ -28,8 +28,8 @@ testOptionValuation b k t v expected = do
     vGamma v `closeTo` gamma
 
 
-bachelierTests :: IO ()
-bachelierTests = hspec $ do
+main :: IO ()
+main = hspec $ do
   describe "bachelier" $ do
     context "When asset price is positive ($100)" $ do
       let f = Forward 100

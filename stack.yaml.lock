@@ -69,7 +69,7 @@ packages:
     hackage: hmatrix-special-0.19.0.0@sha256:09cc1020ea21d28570cff9e98164773cddb7d757aaf20aff5b59458204bd83c4,2817
 snapshots:
 - completed:
-    size: 532380
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/16/16.yaml
-    sha256: d6b004b095fe2a0b8b14fbc30014ee97e58843b9c9362ddb9244273dda62649e
-  original: lts-16.16
+    size: 533252
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/16/26.yaml
+    sha256: cdbc5db9c1afe80a5998247939027a0c7db92fa0f20b5cd01596ec3da628b622
+  original: lts-16.26
