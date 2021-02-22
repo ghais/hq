@@ -1,59 +1,40 @@
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE QuantifiedConstraints #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE DeriveFoldable #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving, DeriveTraversable #-}
-{-# LANGUAGE DeriveFunctor, DeriveFoldable, DeriveTraversable #-}
-{-# LANGUAGE ApplicativeDo #-}
-{-# LANGUAGE OverloadedStrings #-}
-
+{-# LANGUAGE ApplicativeDo              #-}
+{-# LANGUAGE DataKinds                  #-}
+{-# LANGUAGE DeriveFoldable             #-}
+{-# LANGUAGE DeriveFunctor              #-}
+{-# LANGUAGE DeriveTraversable          #-}
+{-# LANGUAGE FlexibleContexts           #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE KindSignatures             #-}
+{-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE QuantifiedConstraints      #-}
+{-# LANGUAGE RankNTypes                 #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 module Main where
-import Prelude hiding (filter)
-import Q.ContingentClaim.Options
-import Q.BlackScholes
-import Q.Stochastic.Process
-import Q.Stochastic.Discretize
-import Data.Random
-import Data.RVar
-import Control.Monad
-import Data.List hiding (filter)
-import Statistics.Sample.Histogram
-import Q.MonteCarlo
-import Data.Time
-import Data.Foldable
-import Control.Monad.State
-import qualified Numeric.LinearAlgebra as V
-import Graphics.Vega.VegaLite hiding (sample, repeat)
-import qualified Data.Text as T
-import Q.Stats.TimeSeries
-import Q.Time.DayCounter
-import Q.Time
-import Data.Time
-import Q.Types
-import qualified Q.Util.File as QF
-import qualified Graphics.Gnuplot.Advanced as GP
+import           Control.Monad
+import           Control.Monad.State
+import           Data.Foldable
+import           Data.List                   hiding (filter)
+import           Data.RVar
+import           Data.Random
+import qualified Data.Text                   as T
+import           Data.Time
+import           Graphics.Vega.VegaLite      hiding (repeat, sample)
+import qualified Numeric.LinearAlgebra       as V
+import           Prelude                     hiding (filter)
+import           Q.ContingentClaim.Options
+import           Q.MonteCarlo
+import           Q.Options.BlackScholes
+import           Q.Stats.TimeSeries
+import           Q.Stochastic.Discretize
+import           Q.Stochastic.Process
+import           Q.Time
+import           Q.Time.DayCounter
+import           Q.Types
+import qualified Q.Util.File                 as QF
+import           Statistics.Sample.Histogram
 
-import qualified Graphics.Gnuplot.MultiPlot as MultiPlot
-
-import qualified Graphics.Gnuplot.Frame as Frame
-import qualified Graphics.Gnuplot.Frame.OptionSet as Opts
-import qualified Graphics.Gnuplot.Frame.OptionSet.Style as OptsStyle
-import qualified Graphics.Gnuplot.Frame.OptionSet.Histogram as Histogram
-
-import qualified Graphics.Gnuplot.Graph as Graph
-
-import qualified Graphics.Gnuplot.Plot.ThreeDimensional as Plot3D
-import qualified Graphics.Gnuplot.Graph.ThreeDimensional as Graph3D
-
-import qualified Graphics.Gnuplot.Plot.TwoDimensional as Plot2D
-import qualified Graphics.Gnuplot.Graph.TwoDimensional as Graph2D
-import Graphics.Gnuplot.Plot.TwoDimensional (linearScale, )
-
-import qualified Graphics.Gnuplot.LineSpecification as LineSpec
-
-import qualified Data.Time as Time
+import qualified Data.Time                   as Time
 
 
 dt :: Double
@@ -94,8 +75,8 @@ plotPayouts = do
       encPutSpread = enc
         . position Y [PName "Put Spread", PmType Quantitative]
       encStraddle = enc
-        . position Y [PName "Straddle", PmType Quantitative]        
-                     
+        . position Y [PName "Straddle", PmType Quantitative]
+
       vl = toVegaLite [payouts [], vlConcat [ asSpec [encVanillaCall [], mark Line []]
                                             , asSpec [encVanillaPut  [], mark Line []]
                                             , asSpec [encCallSpread  [], mark Line []]
@@ -129,8 +110,8 @@ studyDelta = do
       relativeStrikes = [log (k/(atmf bs expiry)) | k <- strikes]
       r               = 0.01
       bs              = BlackScholes spot r vol
-      delta cp k      = vDelta (euOption bs cp k expiry)
-      pv    cp k      = vPremium (euOption bs cp k expiry)
+      delta cp k      = vDelta (euOption bs expiry cp k)
+      pv    cp k      = vPremium (euOption bs expiry cp k)
       row (vol,k,t)     = [show today,
                          show t,
                          show $log (k / atmf bs t),
@@ -142,12 +123,12 @@ studyDelta = do
                          show $ delta Put k
                         ]
       header           = ["VD","Expiry","RelativeStrike", "IR", "Vol", "cPV", "pPV", "cDelta", "pDelta"]
-                        
-  QF.write (map row [(vol, k, t) | vol <- vols, k <- strikes, t <- expiries]) header "/tmp/data/delta.csv"
-  
-  let mydata = dataFromUrl "delta.csv" [Parse [ ( "Expiry", FoDate "%Y-%m-%d" ), ( "VD", FoDate "%Y-%m-%d" ) ]] 
 
-  -- !This is \(dV/dS\) for different strikes, same expiry, interest rate,  
+  QF.write (map row [(vol, k, t) | vol <- vols, k <- strikes, t <- expiries]) header "/tmp/data/delta.csv"
+
+  let mydata = dataFromUrl "delta.csv" [Parse [ ( "Expiry", FoDate "%Y-%m-%d" ), ( "VD", FoDate "%Y-%m-%d" ) ]]
+
+  -- !This is \(dV/dS\) for different strikes, same expiry, interest rate,
   let l1 = toVegaLite [mydata , layers, width 800, height 600, res, trans] where
       calls = encoding
         . position X [PName "RelativeStrike"    , PmType Quantitative]
@@ -160,9 +141,9 @@ studyDelta = do
                      ]
       trans = transform . filter (FExpr "datum.Expiry == datetime(2015,3,15)") $ []
       res = resolve . resolution (RScale [(ChY, Independent)]) $ []
-                        
+
   toHtmlFile "/tmp/data/deltas.html" l1
-      
+
 
 -- | Plot call option premiums, deltas, payoffs across a differnt
 -- range of strikes.
@@ -214,8 +195,8 @@ testPlot = do
                                  , asSpec [encSin [], mark Line []]
                                  ]
                       ]
-  toHtmlFile "/tmp/test.html" vl           
-                    
+  toHtmlFile "/tmp/test.html" vl
+
 plotTrajectories :: IO ()
 plotTrajectories = do
   let dt = 1/365
@@ -229,7 +210,7 @@ plotTrajectories = do
                       . dataColumn "Date" (Strings  (mconcat (replicate n (map dayToString dates))))
                       . dataColumn "St" (Numbers $ mconcat trajectories)
                       . dataColumn "ID" (Strings ids)
-      calls = mark Line 
+      calls = mark Line
       enc = encoding
             . position X [ PName "Date", PmType Temporal]
             . position Y [ PName "St", PmType Quantitative, PScale [SDomain (DNumbers [50, 150])] ]
@@ -239,10 +220,7 @@ plotTrajectories = do
 
 
 
-simple2d :: Plot2D.T Double Double
-simple2d =
-   Plot2D.function Graph2D.lines
-      (linearScale 100 (-10,10)) sin
-main  = GP.plotDefault simple2d
-  
-                      
+main  = undefined
+
+
+

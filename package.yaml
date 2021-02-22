@@ -53,6 +53,7 @@ dependencies:
 - hspec
 - hspec-expectations
 - data-default-class
+- criterion
 
 library:
   source-dirs: src

@@ -1,16 +1,12 @@
 cradle:
   stack:
-    - path: "./src"
+    - path: "src"
       component: "hq:lib"
 
-    - path: "./app/Main.hs"
-      component: "hq:exe:test-exe"
+    - path: "app/"
+      component: "hq:exe:hq-exe"
 
-    - path: "./app/Paths_hq.hs"
-      component: "hq:exe:test-exe"
-
-    - path: "./test/bachelier"
-      component: "hq:test:bachelier"
-
-    - path: "./test/normalimpliedvol"
-      component: "hq:test:normalimpliedvol"
+    - path: "./test/bachelier/Spec.hs"
+      component: "hq:test:bachelier-test"
+    - path: "./test/normalimpliedvol/Spec.hs"
+      component: "hq:test:normalimpliedvol-test"

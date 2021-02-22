@@ -12,20 +12,6 @@ packages:
   original:
     hackage: conversion-1.2.1@sha256:8db4210950736e54be5cd7f7076c19e05d06fb48673eb23638093246a1e7199e,2155
 - completed:
-    hackage: random-fu-0.2.7.7@sha256:55c62bc8e7a2970d4706f50b391559594ef1a8b5e71c0fbd2c9e30d5adafb9ab,4612
-    pantry-tree:
-      size: 2455
-      sha256: 176dbae2762bd8be0de0e2ce2b0f30904d2578b6278e2f14652881f80641cf9b
-  original:
-    hackage: random-fu-0.2.7.7@sha256:55c62bc8e7a2970d4706f50b391559594ef1a8b5e71c0fbd2c9e30d5adafb9ab,4612
-- completed:
-    hackage: random-source-0.3.0.11@sha256:f78e361474d648fb0e0112d895c3a4bca80b1e565b778d763d59614270e8779c,3132
-    pantry-tree:
-      size: 966
-      sha256: b33f2ee09702afd16ef3405120527ba8f3e495c20495bf5767a6da7075b04346
-  original:
-    hackage: random-source-0.3.0.11@sha256:f78e361474d648fb0e0112d895c3a4bca80b1e565b778d763d59614270e8779c,3132
-- completed:
     hackage: rvar-0.2.0.6@sha256:d07cbb734ec307539fb58d4344b2284a1a91f41c9308f437c27ae8bada2111bf,2317
     pantry-tree:
       size: 158
@@ -39,13 +25,6 @@ packages:
       sha256: 53d8b98b9e899d63f7e464670e908f6eb22d8a5ba0b6ea48182fb810b426f0f8
   original:
     hackage: flexible-defaults-0.0.3@sha256:6a7ab000561e1075003cb1053dfbbb4020ae2b02916776d1479c9c3fc82f5d0d,2508
-- completed:
-    hackage: random-fu-multivariate-0.1.2.1@sha256:b8b3adcdb01269480b3d28dae1e9c9a040834b9974c434d6996d3e1545c4d4f7,1439
-    pantry-tree:
-      size: 454
-      sha256: 97d9830f95b03059811d009dd5d50a0b235d057e95b71654ac730e85b99b8343
-  original:
-    hackage: random-fu-multivariate-0.1.2.1@sha256:b8b3adcdb01269480b3d28dae1e9c9a040834b9974c434d6996d3e1545c4d4f7,1439
 - completed:
     hackage: hquantlib-time-0.0.4.1@sha256:2e3b760866e59379e0fd3769f7ad237cdd1b9f912ef54334951aaac43e50a19a,1439
     pantry-tree:
@@ -67,9 +46,36 @@ packages:
       sha256: dab6423c7ec25921bf902878be07ce5b00e743619b7e146dbfe4a849a29a4c8c
   original:
     hackage: hmatrix-special-0.19.0.0@sha256:09cc1020ea21d28570cff9e98164773cddb7d757aaf20aff5b59458204bd83c4,2817
+- completed:
+    hackage: random-source-0.3.0.11@sha256:f78e361474d648fb0e0112d895c3a4bca80b1e565b778d763d59614270e8779c,3132
+    pantry-tree:
+      size: 966
+      sha256: b33f2ee09702afd16ef3405120527ba8f3e495c20495bf5767a6da7075b04346
+  original:
+    hackage: random-source-0.3.0.11@sha256:f78e361474d648fb0e0112d895c3a4bca80b1e565b778d763d59614270e8779c,3132
+- completed:
+    hackage: random-1.2.0@sha256:1e8140229d21489228aa79b820c23259f3c3a1b86e13e6f9c2ad0c48d86d1912,6094
+    pantry-tree:
+      size: 1259
+      sha256: 20fadca2f3ea21eafc87f0d516045a18c19348ef85303f5a5e85662a55975170
+  original:
+    hackage: random-1.2.0@sha256:1e8140229d21489228aa79b820c23259f3c3a1b86e13e6f9c2ad0c48d86d1912,6094
+- completed:
+    subdir: packages/gsl
+    name: hmatrix-gsl
+    version: 0.19.0.0
+    git: https://github.com/ghais/hmatrix/
+    pantry-tree:
+      size: 1542
+      sha256: f5adbc57774140ebb0bab2f0266778d3e33974d6545ac5436d7fdd934aa458c3
+    commit: 0b34f47501563f23390bfd670149614b87df954a
+  original:
+    subdir: packages/gsl
+    git: https://github.com/ghais/hmatrix/
+    commit: 0b34f47501563f23390bfd670149614b87df954a
 snapshots:
 - completed:
-    size: 533252
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/16/26.yaml
-    sha256: cdbc5db9c1afe80a5998247939027a0c7db92fa0f20b5cd01596ec3da628b622
-  original: lts-16.26
+    size: 563098
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/17/1.yaml
+    sha256: 395775c03e66a4286f134d50346b0b6f1432131cf542886252984b4cfa5fef69
+  original: lts-17.1

@@ -16,7 +16,7 @@ import           Data.Time
 import           GHC.Generics           (Generic)
 import           Graphics.Vega.VegaLite
 import           Prelude                hiding (filter)
-import qualified Q.BlackScholes         as BS
+import qualified Q.Options.BlackScholes         as BS
 import           Q.Plotting
 import           Q.Types
 -- | Data holder to map to a file.
@@ -47,7 +47,7 @@ valuation bs@BS.BlackScholes{..} cp k t =
   delta   = BS.vDelta   v
   vega    = BS.vVega    v
   gamma   = BS.vGamma   v
-  v       = BS.euOption bs cp k t
+  v       = BS.euOption bs t cp k
 
 -- | combinator for different option parameters.
 generate :: OptionType -> [Spot] -> [Strike] -> [YearFrac] -> [Rate] -> [Vol] -> [OptionValuation]

@@ -4,7 +4,7 @@ cabal-version: 2.2
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 62e6e526a50b13e4ad99990407369638b49f59d7f6cc31d2a68e645767e5ed66
+-- hash: ccfecaab3d1004f03e5a9e851269c0209561044c1b9aa90d587dc93a936394f0
 
 name:           hq
 version:        0.1.0.0
@@ -29,21 +29,36 @@ source-repository head
 
 library
   exposed-modules:
-      Q.Bachelier
-      Q.BlackScholes
+      Q.SortedVector
       Q.ContingentClaim
       Q.ContingentClaim.Options
-      Q.ImpliedVol.LetsBeRational
-      Q.ImpliedVol.Normal
+      Q.Currencies.America
+      Q.Currencies.Asia
+      Q.Currencies.Europe
+      Q.Currency
+      Q.Greeks
+      Q.Interpolation
       Q.MonteCarlo
       Q.Options
+      Q.Options.Bachelier
+      Q.Options.Black76
+      Q.Options.BlackScholes
+      Q.Options.ImpliedVol
+      Q.Options.ImpliedVol.TimeInterpolation
+      Q.Options.ImpliedVol.InterpolatingSmile
+      Q.Options.ImpliedVol.StrikeInterpolation
+      Q.Options.ImpliedVol.LetsBeRational
+      Q.Options.ImpliedVol.Normal
+      Q.Options.ImpliedVol.Surface
+      Q.Options.ImpliedVol.SVI
+      Q.Options.ImpliedVol.TimeSlice
+      Q.Payoff
       Q.Plotting
       Q.Stats.Arima
       Q.Stats.TimeSeries
       Q.Stochastic
       Q.Stochastic.Discretize
       Q.Stochastic.Process
-      Q.SVI
       Q.Time
       Q.Time.Date
       Q.Time.DayCounter
@@ -62,41 +77,34 @@ library
       external/src/rationalcubic.cpp
       external/src/erf_cody.cpp
   build-depends:
-      Chart
-    , Chart-diagrams
-    , ad
     , base >=4.7 && <5
-    , bytestring
-    , cassava
-    , containers
-    , conversion
-    , data-default-class
-    , erf
-    , gnuplot
-    , hmatrix
-    , hmatrix-gsl
-    , hspec
-    , hspec-expectations
-    , hvega
-    , ieee754
-    , math-functions
-    , mersenne-random-pure64
-    , monad-loops
-    , mtl
-    , random
-    , random-fu
-    , random-fu-multivariate
-    , random-source
-    , rvar
-    , sorted-list
-    , statistics
-    , text
-    , time
-    , transformers
-    , vector
+    , bytestring >=0.10 && <0.11
+    , cassava >=0.5
+    , containers >= 0.6.2
+    , conversion >= 1.2
+    , data-default-class >= 0.1
+    , erf >= 2
+    , hmatrix >= 0.18
+    , hmatrix-gsl >= 0.19
+    , hvega >= 0.11
+    , ieee754 >= 0.8
+    , math-functions >= 0.3.4
+    , mersenne-random-pure64 >= 0.2.2
+    , monad-loops >= 0.4.3
+    , mtl >=2.2
+    , stm >= 2.5
+    , random >= 1.1
+    , random-fu >= 0.2
+    , random-source >= 0.3.0.11
+    , rvar >= 0.2
+    , sorted-list >= 0.2.1.0
+    , statistics >= 0.15.2
+    , text >= 1.2.4
+    , time >= 1.9
+    , vector >= 0.12.1
   default-language: Haskell2010
 
-executable test-exe
+executable hq-exe
   main-is: Main.hs
   other-modules:
       StudyDelta
@@ -105,42 +113,23 @@ executable test-exe
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      Chart
-    , Chart-diagrams
-    , ad
-    , base >=4.7 && <5
-    , bytestring
-    , cassava
-    , containers
-    , conversion
-    , data-default-class
-    , erf
-    , gnuplot
-    , hmatrix
-    , hmatrix-gsl
+    , base >= 4.13
+    , mtl >= 2.2
+    , rvar >= 0.2
+    , random-fu >= 0.2
+    , text >= 1.2
+    , time >= 1.9
+    , bytestring >= 0.10
+    , cassava >= 0.5
+    , hvega >= 0.11
+    , hmatrix >= 0.20
+    , statistics >= 0.15
     , hq
-    , hspec
-    , hspec-expectations
-    , hvega
-    , ieee754
-    , math-functions
-    , mersenne-random-pure64
-    , monad-loops
-    , mtl
-    , random
-    , random-fu
-    , random-fu-multivariate
-    , random-source
-    , rvar
-    , sorted-list
-    , statistics
-    , text
-    , time
-    , transformers
-    , vector
+    , hspec >= 2.7
+    , hspec-expectations >= 0.8
   default-language: Haskell2010
 
-test-suite bachelier
+test-suite bachelier-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
@@ -149,42 +138,13 @@ test-suite bachelier
       test/bachelier
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      Chart
-    , Chart-diagrams
-    , ad
     , base >=4.7 && <5
-    , bytestring
-    , cassava
-    , containers
-    , conversion
-    , data-default-class
-    , erf
-    , gnuplot
-    , hmatrix
-    , hmatrix-gsl
     , hq
-    , hspec
-    , hspec-expectations
-    , hvega
-    , ieee754
-    , math-functions
-    , mersenne-random-pure64
-    , monad-loops
-    , mtl
-    , random
-    , random-fu
-    , random-fu-multivariate
-    , random-source
-    , rvar
-    , sorted-list
-    , statistics
-    , text
-    , time
-    , transformers
-    , vector
+    , hspec >= 2.7
+    , hspec-expectations >= 0.8
   default-language: Haskell2010
 
-test-suite normalimpliedvol
+test-suite normalimpliedvol-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
@@ -193,37 +153,8 @@ test-suite normalimpliedvol
       test/normalimpliedvol
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      Chart
-    , Chart-diagrams
-    , ad
     , base >=4.7 && <5
-    , bytestring
-    , cassava
-    , containers
-    , conversion
-    , data-default-class
-    , erf
-    , gnuplot
-    , hmatrix
-    , hmatrix-gsl
     , hq
-    , hspec
-    , hspec-expectations
-    , hvega
-    , ieee754
-    , math-functions
-    , mersenne-random-pure64
-    , monad-loops
-    , mtl
-    , random
-    , random-fu
-    , random-fu-multivariate
-    , random-source
-    , rvar
-    , sorted-list
-    , statistics
-    , text
-    , time
-    , transformers
-    , vector
+    , hspec >= 2.7
+    , hspec-expectations >= 0.8
   default-language: Haskell2010
