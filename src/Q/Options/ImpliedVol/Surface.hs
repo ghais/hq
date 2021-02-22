@@ -4,7 +4,7 @@
 {-# LANGUAGE QuantifiedConstraints #-}
 {-# LANGUAGE RankNTypes            #-}
 {-# LANGUAGE RecordWildCards       #-}
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ScopedTypeVariables   #-}
 module Q.Options.ImpliedVol.Surface
   (
     Surface(..)
@@ -29,17 +29,18 @@ import           Q.Options.ImpliedVol.TimeSlice
 import           Q.SortedVector
 import           Q.Types
 
+-- | Implied volatility surface where the strikes are in the space of 'k' and
+-- implied volatility time slice is 'v'.
 data Surface v k = Surface
   {
-    surfaceSpot              :: Spot
-  , surfaceTenors            :: SortedVector YearFrac
-  , surfaceForwardCurve      :: YearFrac -> Forward
-  , surfaceDiscountCurve     :: YearFrac -> DF
-  , surfaceAtmTotalVar       :: YearFrac -> TotalVar
-  , surfaceVols              :: M.Map YearFrac v
-  , surfaceTimeInterpolation :: TimeInterpolation
-  , surfaceTimeExtrapolation :: TimeExtrapolation
-  , surfaceType              :: VolType
+    surfaceSpot              :: Spot                   -- ^ Spot.
+  , surfaceTenors            :: SortedVector YearFrac  -- ^ Ordered list of tenors.
+  , surfaceForwardCurve      :: YearFrac -> Forward    -- ^ The forward curve.
+  , surfaceDiscountCurve     :: YearFrac -> DF         -- ^ The discount curve.
+  , surfaceAtmTotalVar       :: YearFrac -> TotalVar   -- ^ A spline of the at the money total variance.
+  , surfaceVols              :: M.Map YearFrac v       -- ^ Map from tenor to 'TimeSlice'
+  , surfaceTimeInterpolation :: TimeInterpolation      -- ^ Method of interpolation between tenors.
+  , surfaceType              :: VolType                -- ^ The type of surface.
   }
 
 totalVarKT :: (StrikeSpace k, TimeSlice v k) => Surface v k -> Strike -> YearFrac -> TotalVar
@@ -185,5 +186,3 @@ euOption _ k f df t vol =
 
 linearInterpolate (YearFrac t1, v1) (YearFrac t2, v2) (YearFrac t) =
   v1 + (v2 - v1)*(t - t1) / (t2 - t1)
-
-
