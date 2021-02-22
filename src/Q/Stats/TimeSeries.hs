@@ -2,22 +2,22 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes        #-}
-{-# LANGUAGE OverloadedStrings #-}
 
 module Q.Stats.TimeSeries where
-import qualified Data.ByteString.Lazy                      as B
-import           Data.Csv                                  ((.:))
-import qualified Data.Csv                                  as Csv
-import qualified Data.Map                                  as M
-import           Data.Maybe                                (fromJust)
-import           Data.Time
-import           Data.Time.Format
-import           Data.Time.Format.ISO8601
-import           Data.Vector                               (Vector, toList)
-import           GHC.Generics                              (Generic)
-import           Graphics.Rendering.Chart.Backend.Diagrams
-import           Graphics.Rendering.Chart.Easy
-import qualified Data.Text as T
+import qualified Data.ByteString.Lazy     as B
+import           Data.Csv                 ((.:))
+import qualified Data.Csv                 as Csv
+import qualified Data.Map                 as M
+import           Data.Maybe               (fromJust)
+import qualified Data.Text                as T
+import           Data.Time                (Day, LocalTime (LocalTime), midnight)
+import           Data.Time.Format         ()
+import           Data.Time.Format.ISO8601 (FormatExtension (BasicFormat),
+                                           calendarFormat, formatParseM,
+                                           formatShow, localTimeFormat,
+                                           timeOfDayFormat)
+import           Data.Vector              (Vector, toList)
+import           GHC.Generics             (Generic)
 -- A single data point with a time and value.
 data DataPoint a b = DataPoint {
     dpT :: a  -- ^Time
@@ -50,11 +50,11 @@ parseDateTime iso_datetime =
   else
     formatParseM localTimeFormat' iso_datetime
 
-localTimeFormat' = (localTimeFormat (calendarFormat BasicFormat) (timeOfDayFormat BasicFormat))
-dayFormat' = (calendarFormat BasicFormat)
+localTimeFormat' = localTimeFormat (calendarFormat BasicFormat) (timeOfDayFormat BasicFormat)
+dayFormat' = calendarFormat BasicFormat
 
 parseTime :: String -> Maybe LocalTime
-parseTime iso_datetime = formatParseM localTimeFormat' iso_datetime
+parseTime = formatParseM localTimeFormat'
 
 parseDay :: String -> Maybe LocalTime
 parseDay iso_date = do
@@ -65,11 +65,11 @@ dayToString :: Day -> T.Text
 dayToString = T.pack . formatShow dayFormat'
 
 dateToString :: LocalTime -> String
-dateToString date = formatShow (localTimeFormat (calendarFormat BasicFormat) (timeOfDayFormat BasicFormat)) date
+dateToString = formatShow (localTimeFormat (calendarFormat BasicFormat) (timeOfDayFormat BasicFormat))
 
 read :: forall a. (Csv.FromNamedRecord a) => FilePath -> IO [a]
 read f = do
-  s <- (B.readFile f)
+  s <- B.readFile f
   let records = Csv.decodeByName s
   case records of (Left s)               -> fail s
                   (Right (header, rows)) -> return $ toList rows
@@ -80,10 +80,3 @@ valuesOnly :: [DataPoint a b] -> [b]
 valuesOnly = fmap dpV
 
 toPair (DataPoint d v) = (d, v)
-
-plot' :: PlotValue a => [DataPoint a Double] -> String -> FilePath -> IO ()
-plot' ts title path = toFile def path $ do
-  layout_title .= "XYZ"
-  plot (line title [map toPair ts])
-
-

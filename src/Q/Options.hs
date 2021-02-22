@@ -1,5 +1,9 @@
 
-module Q.Options (Valuation(..), intrinsinc, hasTimeValue) where
+module Q.Options (
+    Valuation(..)
+  , intrinsinc
+  , hasTimeValue
+  , module Q.Types) where
 
 import           Numeric.IEEE
 import           Q.Types

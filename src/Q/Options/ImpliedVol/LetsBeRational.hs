@@ -1,5 +1,5 @@
 {-# LANGUAGE ForeignFunctionInterface #-}
-module Q.ImpliedVol.LetsBeRational (
+module Q.Options.ImpliedVol.LetsBeRational (
   euImpliedVol
 ) where
 
@@ -7,7 +7,7 @@ import           Data.Coerce                    (coerce)
 import           Data.Number.Erf
 import           Foreign.C.Types
 import           Numeric.IEEE                   (epsilon, maxFinite, minNormal)
-import           Q.BlackScholes
+import           Q.Options.BlackScholes
 import           Q.Options
 import           Q.Types
 import           Statistics.Distribution        (cumulative, density, quantile)

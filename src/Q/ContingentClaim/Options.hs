@@ -1,8 +1,8 @@
 module Q.ContingentClaim.Options where
 
-import Q.ContingentClaim
-import Data.Time
-import Q.Types
+import           Data.Time
+import           Q.ContingentClaim
+import           Q.Types
 
 vanillaPayout :: OptionType  -- ^ Put or call
               -> Double      -- ^ strike
@@ -33,7 +33,7 @@ vanillaOption :: OptionType -- ^ Option type
 vanillaOption cp k t = pay t $ do
   s <- monitor t
   return $ CashFlow t $ vanillaPayout cp k s
-  
+
 callOption = vanillaOption Call
 putOption = vanillaOption Put
 
@@ -41,7 +41,8 @@ putOption = vanillaOption Put
 callSpread k1 k2 t = (vanillaOption Call k1 t) <> (short $ vanillaOption Call k2 t)
 
 -- | A put spread is a portfolio: \(P(K2, T) - P(K1 T) \) s.t. \( K1 < K2 \)
-putSpread k1 k2 t = (vanillaOption Put k2 t) <> (short $ vanillaOption Put k1 t)                                    
+putSpread k1 k2 t = (vanillaOption Put k2 t) <> (short $ vanillaOption Put k1 t)
+
 -- | A straddle is a a portfolio :\(C(K, T) + Put(K, T)\)
 straddle :: Double -> LocalTime -> ContingentClaim Double
 straddle strike t = vanillaOption Put strike t <> vanillaOption Call strike t

@@ -1,10 +1,10 @@
 {-# LANGUAGE RecordWildCards #-}
-module Q.ImpliedVol.Normal where
+module Q.Options.ImpliedVol.Normal where
 import           Data.Default.Class
 import           Numeric.IEEE                   (epsilon, maxFinite, minNormal)
 import           Numeric.Natural
 import           Numeric.RootFinding
-import           Q.Bachelier
+import           Q.Options.Bachelier
 import           Q.Types
 import           Statistics.Distribution        (cumulative, density)
 import           Statistics.Distribution.Normal (standard)
@@ -37,7 +37,7 @@ euImpliedVolWith :: Method -> OptionType -> Forward -> Strike -> YearFrac -> Rat
 euImpliedVolWith m cp f k t r p
   | hasTimeValue cp f k p df = euImpliedVolWith' m cp f k t r p
   | otherwise                = Vol $ 0
-  where df = discountFactor r t
+  where df = discountFactor t r
 
 euImpliedVolWith' Jackel cp (Forward f) (Strike k) (YearFrac t) (Rate r) (Premium p)
   -- Case where interest rate is not 0 we need undiscount. The paper is written
@@ -93,7 +93,7 @@ euImpliedVolWith' ChoKimKwak cp (Forward f) (Strike k) (YearFrac t) (Rate r) (Pr
 
 euImpliedVolWith' RootFinding{..}  cp (Forward forward) k t r (Premium p) =
   let f vol        = p' - p  where
-        (Premium p') = vPremium $ euOption b cp k t
+        (Premium p') = vPremium $ euOption b t cp k
         b            = Bachelier (Forward forward) r (Vol vol)
       (lb, _, ub) = bracket
       root = ridders (RiddersParam (fromEnum maxIter) tol) (lb, ub) f

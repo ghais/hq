@@ -1,6 +1,7 @@
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings          #-}
 
 module Q.Types (
     Observables1(..)
@@ -9,6 +10,7 @@ module Q.Types (
   , Observables4(..)
   , Observables5(..)
   , OptionType(..)
+  , Cash(..)
   , Spot(..)
   , Obs1(..)
   , Obs2(..)
@@ -26,22 +28,31 @@ module Q.Types (
   , Rate(..)
   , DF(..)
   , Vol(..)
+  , TotalVar(..)
   , TimeScaleable(..)
   , cpi
   , discountFactor
   , discount
   , undiscount
+  , rateFromDiscount
+  , totalVarToVol
+  , volToTotalVar
+  , ($*$)
+  , ($/$)
+  , ($+$)
   ) where
 
-import           Data.Csv     (FromField(..), ToField(..))
+import qualified Data.ByteString as B
+import           Data.Csv        (FromField (..), ToField (..))
 import           Data.Time
-import           GHC.Generics (Generic)
+import           GHC.Generics    (Generic)
 import           Q.Time
 import           Q.Time.Date
-import qualified Data.ByteString as B
-
+import Foreign (Storable)
+import Numeric.LinearAlgebra (Element(..))
+import Data.Coerce
 -- | Type for Put or Calls
-data OptionType  = Put | Call deriving (Generic, Eq, Show, Bounded)
+data OptionType  = Put | Call deriving (Generic, Eq, Show, Read, Bounded)
 instance Enum OptionType where
   succ Call = Put
   succ Put  = Call
@@ -49,34 +60,54 @@ instance Enum OptionType where
   pred = succ
   toEnum x = if signum x == 1 then Call else Put
   fromEnum Call = 1
-  fromEnum Put = -1
+  fromEnum Put  = -1
 
 
 cpi Call = 1
 cpi Put  = -1
 
-newtype Spot     = Spot    Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
-newtype Forward  = Forward Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
-newtype Strike   = Strike  Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
+newtype Cash     = Cash    Double deriving (Generic, Eq, Show, Read, Ord, Num, Fractional, Real, RealFrac, RealFloat, Floating, Storable) 
+
+newtype Spot     = Spot    Double deriving (Generic, Eq, Show, Read, Ord, Num, Fractional, Real, RealFrac, RealFloat, Floating, Storable)
+newtype Forward  = Forward Double deriving (Generic, Eq, Show, Read, Ord, Num, Fractional, Real, RealFrac, RealFloat, Floating, Storable)
+newtype Strike   = Strike  Double deriving (Generic, Eq, Show, Read, Ord, Num, Fractional, Real, RealFrac, RealFloat, Floating, Storable)
+
+($*$) :: (Coercible a Double, Coercible b Double) => a -> b -> a
+x1 $*$ x2 = coerce $ (coerce x1::Double) * (coerce x2::Double)
+
+($/$) :: (Coercible a Double, Coercible b Double) => a -> b -> a
+x1 $/$ x2 = coerce $ (coerce x1::Double) / (coerce x2::Double)
+
+($+$) :: (Coercible a Double, Coercible b Double) => a -> b -> a
+x1 $+$ x2 = coerce $ (coerce x1::Double) + (coerce x2::Double)
+
+
 
 -- Later on i should add roll.
-newtype Expiry   = Expiry   Day    deriving (Generic, Eq, Show, Ord)
+newtype Expiry   = Expiry   Day    deriving (Generic, Eq, Show, Read, Ord)
 
-newtype Premium  = Premium  Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
-newtype Delta    = Delta    Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
-newtype Vega     = Vega     Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
-newtype Gamma    = Gamma    Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
+newtype Premium  = Premium  Double deriving (Generic, Eq, Show, Read, Ord, Num, Fractional, Real, RealFrac, RealFloat, Floating, Storable)
+newtype Delta    = Delta    Double deriving (Generic, Eq, Show, Read, Ord, Num, Fractional, Real, RealFrac, RealFloat, Floating, Storable)
+newtype Vega     = Vega     Double deriving (Generic, Eq, Show, Read, Ord, Num, Fractional, Real, RealFrac, RealFloat, Floating, Storable)
+newtype Gamma    = Gamma    Double deriving (Generic, Eq, Show, Read, Ord, Num, Fractional, Real, RealFrac, RealFloat, Floating, Storable)
 
-newtype YearFrac = YearFrac Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
+newtype YearFrac = YearFrac {unYearFrac:: Double} deriving (Generic, Eq, Show, Read, Ord, Num, Fractional, Real, RealFrac, RealFloat, Floating, Storable)
 
-newtype Rate     = Rate Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
-newtype DF       = DF   Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
+newtype Rate     = Rate Double deriving (Generic, Eq, Show, Read, Ord, Num, Fractional, Real, RealFrac, RealFloat, Floating, Storable)
+newtype DF       = DF   Double deriving (Generic, Eq, Show, Read, Ord, Num, Fractional, Real, RealFrac, RealFloat, Floating, Storable)
 
-discountFactor (Rate r) (YearFrac t) = DF $ exp ((-r) * t)
+discountFactor (YearFrac t) (Rate r) = DF $ exp ((-r) * t)
 discount (DF df) p = p * df
 undiscount (DF df) p = p / df
 
-newtype Vol      = Vol Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
+rateFromDiscount (YearFrac t) (DF df) = Rate $ - (log df) / t
+
+newtype Vol      = Vol       Double deriving (Generic, Eq, Show, Read, Ord, Num, Fractional, Real, RealFrac, RealFloat, Floating, Storable)
+-- | (\w(S_0, K, T) = \sigma_{BS}(S_0, K, T)T \)
+newtype TotalVar = TotalVar  Double deriving (Generic, Eq, Show, Read, Ord, Num, Fractional, Real, RealFrac, RealFloat, Floating, Storable)
+
+totalVarToVol (TotalVar v) (YearFrac t) = Vol $ sqrt (v / t)
+volToTotalVar (Vol sigma) (YearFrac t) = TotalVar $ sigma * sigma * t
 
 instance FromField OptionType where
   parseField s | (s == "C" || s == "c") = pure Call
@@ -89,6 +120,12 @@ instance FromField Spot where
   parseField s = Spot <$> parseField s
 instance ToField Spot where
   toField (Spot k) = toField k
+
+instance FromField Cash where
+  parseField s = Cash <$> parseField s
+instance ToField Cash where
+  toField (Cash k) = toField k
+
 
 instance FromField Strike where
   parseField s = Strike <$> parseField s
@@ -129,7 +166,7 @@ instance FromField Rate where
     parseField s =  Rate <$> parseField s
 instance ToField   Rate  where
   toField (Rate k) = toField k
-  
+
 
 instance FromField Vol where
     parseField s =  Vol <$> parseField s
@@ -140,6 +177,9 @@ instance ToField   Vol  where
 class TimeScaleable a where
   scale :: YearFrac -> a -> a
 
+instance TimeScaleable Double where
+  scale (YearFrac t) y = y * t
+  
 instance TimeScaleable Rate where
   scale (YearFrac t) (Rate r)  = Rate $ r * t
 instance TimeScaleable Vol where

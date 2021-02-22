@@ -1,5 +1,5 @@
 {-# LANGUAGE DeriveGeneric #-}
-module Q.Time.Date (Holiday(..)) where
+module Q.Time.Date (Calendar(..)) where
 
 import Data.Time
 import GHC.Generics
@@ -24,7 +24,7 @@ data BusinessDayConvention =
         deriving (Generic, Show, Eq, Enum)
 
 -- | Defines a holidays for given calendar. Corresponds to calendar class in QuantLib
-class Holiday m where
+class Calendar m where
   isHoliday :: m -> (Integer, Int, Int) -> Bool
   isWeekend :: m -> Day -> Bool
 
@@ -52,7 +52,7 @@ getDaysBetween (fd, td) = reverse $ generator fd []
             where   nextDate        = addDays 1 date
 
 -- | Gets the next working day
-getNextBusinessDay :: Holiday a => a -> Day -> Day
+getNextBusinessDay :: Calendar a => a -> Day -> Day
 getNextBusinessDay m d
   | isBusinessDay m nextDay       = nextDay
   | otherwise                     = getNextBusinessDay m nextDay

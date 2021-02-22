@@ -1,7 +1,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE RecordWildCards       #-}
 
-module Q.BlackScholes (
+module Q.Options.BlackScholes (
     BlackScholes(..)
   , atmf
   , euOption
@@ -9,6 +9,7 @@ module Q.BlackScholes (
   , euput
   , module Q.Options
 ) where
+
 import           Control.Monad.State
 import           Data.Random                    hiding (Gamma)
 import           Data.Time
@@ -22,6 +23,7 @@ import           Q.Time
 import           Q.Types
 import           Statistics.Distribution        (cumulative, density)
 import           Statistics.Distribution.Normal (standard)
+import qualified Q.Options.Black76 as B76
 
 dcf = dcYearFraction ThirtyUSA
 
@@ -54,37 +56,25 @@ atmf BlackScholes{..} t = Strike $ s / d where
 
 
 -- | European option valuation with black scholes.
-euOption ::  BlackScholes -> OptionType -> Strike -> YearFrac -> Valuation
-euOption bs@BlackScholes{..} cp k t = Valuation premium delta vega gamma where
-  (Strike f)  = atmf bs t
-  n           = cumulative standard
-  (Vol sigmaSqt) = scale t bsVol
-  (Rate df)   = exp (scale t (-bsRate))
-  (Spot s)    = bsSpot
-  d1          = (dPlus  f bsRate bsVol k t)
-  d2          = (dMinus f bsRate bsVol k t)
-  nd1         = n d1
-  nd2         = n d2
-  callDelta   = nd1
-  putDelta    = - (n (-d1))
-  vega        = Vega $ (density standard d1 ) * s * sigmaSqt
-  gamma       = Gamma $ (density standard d1) / (s * sigmaSqt)
-  premium  = Premium $ case cp of
-    Call -> df * (f * nd1 - nd2 * k')
-    Put  -> df * (n (-d2) * k' - n (-d1) * f)
-    where (Strike k') = k
-  delta | cp == Call = Delta $ callDelta
-        | cp == Put  = Delta $ putDelta
+euOption ::  BlackScholes ->  YearFrac -> OptionType -> Strike ->Valuation
+euOption bs@BlackScholes{..} t cp k =
+  let b76 = B76.Black76 {
+          b76F  = forward bs t
+        , b76DF = Q.Types.discountFactor t bsRate
+        , b76T  = t
+        , b76Vol = bsVol
+        }
+  in B76.euOption b76 cp k
 
 -- | see 'euOption'
-euput bs =  euOption bs Put
-
+euput bs t = euOption bs t Put
+ 
 -- | see 'euOption'
-eucall bs = euOption bs Call
+eucall bs t = euOption bs t Call
 
-dPlus f (Rate r) (Vol sigma) (Strike k) (YearFrac t)  = recip (sigma * sqrt t) * (log (f/k) + (0.5 * sigma * sigma) * t)
-dMinus f (Rate r) (Vol sigma) (Strike k) (YearFrac t) = recip (sigma * sqrt t) * (log (f/k) - (0.5 * sigma * sigma) * t)
-
+forward BlackScholes{..} (YearFrac t) = Forward $ s * exp (r * t)
+  where (Spot s) = bsSpot
+        (Rate r) = bsRate
 
 corradoMillerIniitalGuess bs@BlackScholes{..} cp (Strike k) (YearFrac t) (Premium premium) =
   (recip $ sqrt t) * ((sqrt (2 * pi)/ (s + discountedStrike)) + (premium - (s - discountedStrike)/2) + sqrt ((premium - (s - discountedStrike)/2)**2 - ((s - discountedStrike)**2/pi))) where

@@ -1,6 +1,6 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 
-module Q.Bachelier (
+module Q.Options.Bachelier (
     Bachelier(..)
   , euOption
   , eucall
@@ -23,8 +23,8 @@ import           Q.Types
 data Bachelier = Bachelier Forward Rate Vol deriving Show
 
 -- | European option valuation with bachelier model.
-euOption ::  Bachelier -> OptionType -> Strike -> YearFrac -> Valuation
-euOption (Bachelier (Forward f) (Rate r) (Vol sigma)) cp (Strike k) (YearFrac t)
+euOption ::  Bachelier -> YearFrac -> OptionType -> Strike -> Valuation
+euOption (Bachelier (Forward f) (Rate r) (Vol sigma)) (YearFrac t) cp (Strike k)
   = Valuation premium delta vega gamma where
     premium = Premium $ df * (q*(f - k)*n(q*d1) + sigma*sqrt(t)/sqrt2Pi * (exp(-0.5 *d1 * d1)))
     delta   = Delta   $ df * n (q * d1)
@@ -37,10 +37,10 @@ euOption (Bachelier (Forward f) (Rate r) (Vol sigma)) cp (Strike k) (YearFrac t)
     n = cumulative standard
 
 -- | see 'euOption'
-euput b =  euOption b Put
+euput b t =  euOption b t Put
 
 -- | see 'euOption'
-eucall b = euOption b Call
+eucall b t = euOption b t Call
 
 
 instance Model Bachelier Double where

@@ -1,31 +1,26 @@
-{-# LANGUAGE BangPatterns           #-}
-{-# LANGUAGE FunctionalDependencies #-}
-{-# LANGUAGE InstanceSigs           #-}
-{-# LANGUAGE MultiParamTypeClasses  #-}
-{-# LANGUAGE NamedFieldPuns         #-}
-{-# LANGUAGE QuantifiedConstraints  #-}
-{-# LANGUAGE RecordWildCards        #-}
-{-# LANGUAGE ScopedTypeVariables    #-}
-{-# LANGUAGE TupleSections          #-}
+{-# LANGUAGE BangPatterns          #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE QuantifiedConstraints #-}
+{-# LANGUAGE ScopedTypeVariables   #-}
+{-# LANGUAGE TupleSections         #-}
 module Q.Stochastic.Process
         where
 import           Control.Monad
+import           Control.Monad.State
 import           Data.List             (foldl')
-import           Data.Random
-import           Data.Random
 import           Data.RVar
+import           Data.Random
 import           Numeric.LinearAlgebra
-import Control.Monad.State
 
 rwalkState :: RVarT (State Double) Double
 rwalkState = do
     prev <- lift get
     change  <- rvarT StdNormal
-    
+
     let new = prev + change
     lift (put new)
     return new
-    
+
 type Time = Double
 
 -- Dont know why this wasn't done.
@@ -84,9 +79,9 @@ class (Num b) => StochasticProcess a b where
 
 -- |Geometric Brownian motion
 data GeometricBrownian = GeometricBrownian {
-        gbDrift :: Double -- ^Drift
-      , gbDiff  :: Double -- ^Vol
-        } deriving (Show)
+    gbDrift :: Double -- ^Drift
+  , gbDiff  :: Double -- ^Vol
+} deriving (Show)
 
 
 instance StochasticProcess GeometricBrownian Double where
@@ -100,4 +95,3 @@ data ItoProcess = ItoProcess {
         ipDrift :: (Time, Double) -> Double,
         ipDiff  :: (Time, Double) -> Double
 }
-

@@ -38,7 +38,7 @@ multiplier notional (ContingentClaim ccProcessors) = ContingentClaim $ map scale
 short :: ContingentClaim a -> ContingentClaim a
 short = multiplier (-1)
 
-  
+
 instance Semigroup (ContingentClaim a) where
   c1 <> c2 = ContingentClaim $ combine (unCC c1) (unCC c2)
     where combine (cc1:ccs1) (cc2:ccs2)
@@ -48,9 +48,7 @@ instance Semigroup (ContingentClaim a) where
                 CCProcessor t (mf++mf') : combine ccs1 ccs2
             | monitorTime cc1 > monitorTime cc2 = cc2 : combine (cc1:ccs1) ccs2
             | otherwise = cc1 : combine ccs1 (cc2:ccs2)
-          combine cs1 cs2 = cs1 ++ cs2    
-
-
+          combine cs1 cs2 = cs1 ++ cs2
 
 type CCBuilder w r a =  WriterT w (Reader r) a
 
