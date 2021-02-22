@@ -60,6 +60,3 @@ main = hspec $ do
                            (Gamma 0.01994711)
             testOptionValuation b k t v expected
 
-
-spot = Spot 100
-tenors = fromList [YearFrac 1.0, YearFrac 2.0]
