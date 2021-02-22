@@ -16,7 +16,7 @@ newtype M      = M      Double deriving (Generic, Eq, Show, Ord, Num, Fractional
 newtype Sigma  = Sigma  Double deriving (Generic, Eq, Show, Ord, Num, Fractional, Floating)
 
 -- | Stochastic volatility inspired parameterization of the vol surface.
-data SVI = RSVI     -- ^ The original raw SVI representation from Gatheral
+data SVI = RSVI    -- ^ The original raw SVI representation from Gatheral
            Alpha   -- ^ Corresponds to a vertical translation of the smile.
            Beta    -- ^ Slope of call and put wings.
            Rho     -- ^ A counter clock wise rotation of the smile.
