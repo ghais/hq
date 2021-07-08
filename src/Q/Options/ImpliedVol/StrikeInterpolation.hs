@@ -26,6 +26,9 @@ instance InterpolatorV StrikeInterpolation Strike Vol where
   interpolateV CubicAkima    (SortedVector strikes) vols (Strike k) =
     Vol $ GSL.evaluateV GSL.Akima  (coerce strikes) (coerce vols) k
 
+
   interpolateV CubicMonotone (SortedVector strikes) vols (Strike k) =
-    Vol $ GSL.evaluateV GSL.Steffen (coerce strikes) (coerce vols) k
+    -- The interpolation method should be Steffen but until the next
+    -- version of hmatrix-gsl is release i am using Akima.
+    Vol $ GSL.evaluateV GSL.Akima (coerce strikes) (coerce vols) k 
 
